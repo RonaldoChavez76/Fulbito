@@ -63,4 +63,8 @@
 ---
 <p align="center">
   <i>Desarrollado para el proyecto de la UTNG_Chavez Piñón Santiago Ronaldo_González Avalos César Fernando_Torres Perez Leonel Alejandro</i>
+
+  <i>Grupo GIDS6093</i>
 </p>
+
+
