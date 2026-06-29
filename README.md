@@ -26,7 +26,7 @@
 
 <div align="center">
 
-## Capturas de Pantalla
+## Algunas Capturas de Pantalla -- No son Todas ---
 
 ![img.png](img.png)
 ![img_1.png](img_1.png)
