@@ -1,11 +1,9 @@
 package mx.utng.srcp.fulbito.data.local.entity
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
 
-@Entity(tableName = "matches")
 data class MatchEntity(
-    @PrimaryKey val id: Int = 1,
+    @SerializedName("_id") val id: String? = null,
     val homeTeam: String,
     val awayTeam: String,
     val homeScore: Int = 0,

@@ -1,15 +1,14 @@
 package mx.utng.srcp.fulbito.data.local.entity
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
 
 enum class EventType {
     GOAL, YELLOW_CARD, RED_CARD
 }
 
-@Entity(tableName = "events")
 data class EventEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @SerializedName("_id") val id: String? = null,
+    val matchId: String? = null,
     val type: EventType,
     val playerDorsal: String,
     val teamId: Int,

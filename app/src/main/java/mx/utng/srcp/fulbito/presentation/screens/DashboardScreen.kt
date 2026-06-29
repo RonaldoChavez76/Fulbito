@@ -23,11 +23,15 @@ fun DashboardScreen(
     onPauseToggle: () -> Unit,
     onFinish: () -> Unit,
     onNextPeriod: () -> Unit,
+    onReopenMatch: () -> Unit,
     onEventClick: (EventType) -> Unit,
     onEditLastEvent: () -> Unit
 ) {
     val scrollState = rememberScalingLazyListState()
     val isFinished = match?.isFinished == true
+
+    var showFinishConfirmation by remember { mutableStateOf(false) }
+    var showNextPeriodConfirmation by remember { mutableStateOf(false) }
 
     Scaffold(
         vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
@@ -70,16 +74,22 @@ fun DashboardScreen(
                     modifier = Modifier
                         .padding(vertical = 4.dp)
                         .background(
-                            color = if (isFinished) Color.DarkGray else MaterialTheme.colors.primary,
+                            color = if (isFinished) Color.DarkGray else Color(0xFF2196F3),
                             shape = MaterialTheme.shapes.medium
                         )
-                        .padding(horizontal = 12.dp, vertical = 2.dp)
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
+                    val periodText = when(match?.currentPeriod) {
+                        "1ER TIEMPO" -> "PRIMER TIEMPO"
+                        "2DO TIEMPO" -> "SEGUNDO TIEMPO"
+                        else -> match?.currentPeriod ?: "---"
+                    }
                     Text(
-                        text = match?.currentPeriod ?: "1ER TIEMPO",
-                        fontSize = 11.sp,
+                        text = periodText,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (isFinished) Color.White else Color.Black
+                        color = Color.White,
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -107,24 +117,30 @@ fun DashboardScreen(
                 }
             }
 
-            // Control Buttons (Disabled if finished)
-            if (!isFinished) {
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
+            // Control Buttons
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    if (!isFinished) {
                         SmallControlChip(
                             text = if (match?.isPaused == true) "PLAY" else "PAUSA",
                             onClick = onPauseToggle
                         )
-                        SmallControlChip(text = "FIN", onClick = onFinish)
-                        SmallControlChip(text = "SIG. T", onClick = onNextPeriod)
+                        SmallControlChip(text = "FIN", onClick = { showFinishConfirmation = true })
+                        SmallControlChip(text = "SIG. T", onClick = { showNextPeriodConfirmation = true })
+                    } else {
+                        CompactChip(
+                            onClick = onReopenMatch,
+                            label = { Text("REABRIR PARTIDO", fontSize = 8.sp) },
+                            colors = ChipDefaults.secondaryChipColors(backgroundColor = Color(0xFF3F51B5))
+                        )
                     }
                 }
             }
 
-            // Event Buttons (Disabled if finished)
+            // Event Buttons
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
@@ -154,6 +170,21 @@ fun DashboardScreen(
             }
         }
     }
+
+    // Confirmations
+    ConfirmationDialog(
+        show = showFinishConfirmation,
+        title = "¿FINALIZAR PARTIDO?",
+        onConfirm = { onFinish(); showFinishConfirmation = false },
+        onCancel = { showFinishConfirmation = false }
+    )
+
+    ConfirmationDialog(
+        show = showNextPeriodConfirmation,
+        title = "¿PASAR AL SIG. TIEMPO?",
+        onConfirm = { onNextPeriod(); showNextPeriodConfirmation = false },
+        onCancel = { showNextPeriodConfirmation = false }
+    )
 }
 
 @Composable

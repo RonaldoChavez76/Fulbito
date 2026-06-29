@@ -19,6 +19,8 @@ import mx.utng.srcp.fulbito.data.local.entity.EventType
 @Composable
 fun EventLogScreen(
     events: List<EventEntity>,
+    homeTeam: String,
+    awayTeam: String,
     onEditEvent: (EventEntity) -> Unit,
     onBack: () -> Unit
 ) {
@@ -41,7 +43,8 @@ fun EventLogScreen(
         }
 
         items(events) { event ->
-            EventItem(event = event, onEdit = { onEditEvent(event) })
+            val teamName = if (event.teamId == 0) homeTeam else awayTeam
+            EventItem(event = event, teamName = teamName, onEdit = { onEditEvent(event) })
         }
 
         item {
@@ -56,11 +59,17 @@ fun EventLogScreen(
 }
 
 @Composable
-fun EventItem(event: EventEntity, onEdit: () -> Unit) {
+fun EventItem(event: EventEntity, teamName: String, onEdit: () -> Unit) {
     val color = when (event.type) {
         EventType.GOAL -> Color(0xFF4CAF50)
         EventType.YELLOW_CARD -> Color(0xFFFFC107)
         EventType.RED_CARD -> Color(0xFFF44336)
+    }
+    
+    val typeName = when (event.type) {
+        EventType.GOAL -> "GOL"
+        EventType.YELLOW_CARD -> "AMARILLA"
+        EventType.RED_CARD -> "ROJA"
     }
 
     Card(
@@ -76,9 +85,10 @@ fun EventItem(event: EventEntity, onEdit: () -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(text = event.type.name, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = color)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = typeName, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = color)
                 Text(text = "Dorsal: #${event.playerDorsal}", fontSize = 11.sp)
+                Text(text = teamName, fontSize = 8.sp, color = Color.LightGray, fontWeight = FontWeight.Medium)
             }
             Text(text = formatTime(event.timestampSeconds), fontSize = 9.sp, color = Color.Gray)
         }

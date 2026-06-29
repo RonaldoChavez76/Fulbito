@@ -27,6 +27,7 @@ fun EditEventScreen(
 ) {
     var selectedDorsal by remember { mutableStateOf(initialDorsal) }
     var isManualMode by remember { mutableStateOf(false) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
 
     val filteredPlayers = players.filter { it.teamId == teamId }
 
@@ -47,7 +48,6 @@ fun EditEventScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp)
         ) {
-            // Header
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
@@ -63,44 +63,55 @@ fun EditEventScreen(
                 Text(text = "¿CORREGIR DORSAL?", fontSize = 10.sp, modifier = Modifier.padding(vertical = 4.dp))
             }
 
-            // Grid
             item {
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    mainAxisSpacing = 4.dp,
-                    crossAxisSpacing = 4.dp,
-                    alignment = Alignment.CenterHorizontally
-                ) {
-                    filteredPlayers.forEach { player ->
-                        val isSelected = selectedDorsal == player.dorsal
-                        Button(
-                            onClick = { selectedDorsal = player.dorsal },
-                            modifier = Modifier.size(36.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                backgroundColor = if (isSelected) Color(0xFFFF9800) else Color.DarkGray
-                            )
-                        ) {
-                            Text(text = player.dorsal, fontSize = 12.sp)
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    val rows = (filteredPlayers.map { it.dorsal }).chunked(3)
+                    rows.forEach { row ->
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            row.forEach { dorsal ->
+                                val isSelected = selectedDorsal == dorsal
+                                Button(
+                                    onClick = { selectedDorsal = dorsal },
+                                    modifier = Modifier.size(36.dp).padding(2.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = if (isSelected) Color(0xFFFF9800) else Color.DarkGray
+                                    )
+                                ) {
+                                    Text(text = dorsal, fontSize = 12.sp)
+                                }
+                            }
+                            if (row.size < 3) {
+                                Button(
+                                    onClick = { isManualMode = true },
+                                    modifier = Modifier.size(36.dp).padding(2.dp),
+                                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Gray)
+                                ) {
+                                    Text(text = "+", fontSize = 14.sp)
+                                }
+                            }
                         }
                     }
-                    Button(
-                        onClick = { isManualMode = true },
-                        modifier = Modifier.size(36.dp),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Gray)
-                    ) {
-                        Text(text = "+", fontSize = 14.sp)
+                    if (filteredPlayers.size % 3 == 0) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            Button(
+                                onClick = { isManualMode = true },
+                                modifier = Modifier.size(36.dp).padding(2.dp),
+                                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Gray)
+                            ) {
+                                Text(text = "+", fontSize = 14.sp)
+                            }
+                        }
                     }
                 }
             }
 
-            // Bottom Buttons
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     CompactChip(
-                        onClick = onDelete,
+                        onClick = { showDeleteConfirmation = true },
                         label = { Text("BORRAR", fontSize = 7.sp) },
                         colors = ChipDefaults.secondaryChipColors(backgroundColor = Color(0xFFB71C1C)),
                         modifier = Modifier.weight(1f)
@@ -121,5 +132,12 @@ fun EditEventScreen(
                 }
             }
         }
+
+        ConfirmationDialog(
+            show = showDeleteConfirmation,
+            title = "¿ELIMINAR ESTE EVENTO?",
+            onConfirm = { onDelete(); showDeleteConfirmation = false },
+            onCancel = { showDeleteConfirmation = false }
+        )
     }
 }

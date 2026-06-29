@@ -11,11 +11,7 @@ import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import mx.utng.srcp.fulbito.data.local.entity.EventType
-import mx.utng.srcp.fulbito.presentation.screens.DashboardScreen
-import mx.utng.srcp.fulbito.presentation.screens.EditEventScreen
-import mx.utng.srcp.fulbito.presentation.screens.EventLogScreen
-import mx.utng.srcp.fulbito.presentation.screens.EventRegistrationScreen
-import mx.utng.srcp.fulbito.presentation.screens.formatTime
+import mx.utng.srcp.fulbito.presentation.screens.*
 import mx.utng.srcp.fulbito.presentation.theme.FulbitoTheme
 
 class MainActivity : ComponentActivity() {
@@ -46,6 +42,7 @@ fun FulbitoApp() {
                     onPauseToggle = { viewModel.togglePause() },
                     onFinish = { viewModel.finishMatch() },
                     onNextPeriod = { viewModel.nextPeriod() },
+                    onReopenMatch = { viewModel.reopenMatch() },
                     onEventClick = { type ->
                         navController.navigate("registration/$type")
                     },
@@ -58,6 +55,8 @@ fun FulbitoApp() {
             composable("log") {
                 EventLogScreen(
                     events = events,
+                    homeTeam = match?.homeTeam ?: "Local",
+                    awayTeam = match?.awayTeam ?: "Visita",
                     onEditEvent = { event ->
                         navController.navigate("edit/${event.id}")
                     },
@@ -76,6 +75,7 @@ fun FulbitoApp() {
                     homeTeam = match?.homeTeam ?: "Local",
                     awayTeam = match?.awayTeam ?: "Visita",
                     players = players,
+                    events = events,
                     onConfirm = { dorsal, teamId ->
                         viewModel.registerEvent(eventType, dorsal, teamId)
                         navController.popBackStack()
@@ -86,9 +86,9 @@ fun FulbitoApp() {
 
             composable(
                 "edit/{eventId}",
-                arguments = listOf(navArgument("eventId") { type = NavType.LongType })
+                arguments = listOf(navArgument("eventId") { type = NavType.StringType })
             ) { backStackEntry ->
-                val eventId = backStackEntry.arguments?.getLong("eventId") ?: -1L
+                val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
                 val event = events.find { it.id == eventId }
                 if (event != null) {
                     EditEventScreen(
@@ -98,11 +98,11 @@ fun FulbitoApp() {
                         initialDorsal = event.playerDorsal,
                         players = players,
                         onSave = { newDorsal ->
-                            viewModel.updateEvent(eventId, newDorsal)
+                            viewModel.updateEventById(eventId, newDorsal)
                             navController.popBackStack()
                         },
                         onDelete = {
-                            viewModel.deleteEvent(eventId)
+                            viewModel.deleteEventById(eventId)
                             navController.popBackStack()
                         },
                         onCancel = { navController.popBackStack() }

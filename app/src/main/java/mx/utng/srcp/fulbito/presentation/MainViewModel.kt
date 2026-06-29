@@ -1,14 +1,18 @@
 package mx.utng.srcp.fulbito.presentation
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import mx.utng.srcp.fulbito.data.local.entity.*
+import mx.utng.srcp.fulbito.data.remote.RetrofitClient
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
+    private val api = RetrofitClient.apiService
+
     private val _match = MutableStateFlow<MatchEntity?>(null)
     val match: StateFlow<MatchEntity?> = _match.asStateFlow()
 
@@ -19,9 +23,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val events: StateFlow<List<EventEntity>> = _events.asStateFlow()
 
     private var timerJob: Job? = null
+    private var currentMatchId: String? = null
 
     init {
-        seedDatabase()
+        loadOrInitializeMatch()
+        
         viewModelScope.launch {
             match.collect { m ->
                 if (m != null && !m.isPaused && !m.isFinished && timerJob == null) {
@@ -33,23 +39,69 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun seedDatabase() {
-        _match.value = MatchEntity(
-            homeTeam = "Toros FC",
-            awayTeam = "Máquinas",
-            isPaused = true
-        )
+    private fun loadOrInitializeMatch() {
+        viewModelScope.launch {
+            try {
+                val response = api.getAllMatches()
+                if (response.isSuccessful && !response.body().isNullOrEmpty()) {
+                    val latestMatch = response.body()!!.first()
+                    currentMatchId = latestMatch.id
+                    fetchFullMatchDetails(currentMatchId!!)
+                } else {
+                    createNewMatch()
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error loading match", e)
+            }
+        }
+    }
 
-        _players.value = listOf(
-            PlayerEntity(id = 1, dorsal = "7", name = "Juan", teamId = 0),
-            PlayerEntity(id = 2, dorsal = "10", name = "Pedro", teamId = 0),
-            PlayerEntity(id = 3, dorsal = "14", name = "Luis", teamId = 0),
-            PlayerEntity(id = 4, dorsal = "9", name = "Gomez", teamId = 1),
-            PlayerEntity(id = 5, dorsal = "3", name = "Silva", teamId = 1),
-            PlayerEntity(id = 6, dorsal = "11", name = "Rojas", teamId = 1),
-            PlayerEntity(id = 7, dorsal = "6", name = "Diaz", teamId = 0),
-            PlayerEntity(id = 8, dorsal = "2", name = "Perez", teamId = 1)
+    private suspend fun createNewMatch() {
+        try {
+            val newMatch = MatchEntity(homeTeam = "Toros FC", awayTeam = "Máquinas")
+            val response = api.createMatch(newMatch)
+            if (response.isSuccessful) {
+                val createdMatch = response.body()!!
+                currentMatchId = createdMatch.id
+                _match.value = createdMatch
+                
+                // Seed initial players for the new match
+                seedPlayers(createdMatch.id!!)
+            }
+        } catch (e: Exception) {
+            Log.e("MainViewModel", "Error creating match", e)
+        }
+    }
+
+    private suspend fun seedPlayers(matchId: String) {
+        val initialPlayers = listOf(
+            PlayerEntity(matchId = matchId, dorsal = "7", name = "Juan", teamId = 0),
+            PlayerEntity(matchId = matchId, dorsal = "10", name = "Pedro", teamId = 0),
+            PlayerEntity(matchId = matchId, dorsal = "14", name = "Luis", teamId = 0),
+            PlayerEntity(matchId = matchId, dorsal = "9", name = "Gomez", teamId = 1),
+            PlayerEntity(matchId = matchId, dorsal = "3", name = "Silva", teamId = 1),
+            PlayerEntity(matchId = matchId, dorsal = "11", name = "Rojas", teamId = 1),
+            PlayerEntity(matchId = matchId, dorsal = "6", name = "Diaz", teamId = 0),
+            PlayerEntity(matchId = matchId, dorsal = "2", name = "Perez", teamId = 1)
         )
+        initialPlayers.forEach { api.syncManualPlayer(it) }
+        fetchFullMatchDetails(matchId)
+    }
+
+    private fun fetchFullMatchDetails(matchId: String) {
+        viewModelScope.launch {
+            try {
+                val response = api.getMatchDetails(matchId)
+                if (response.isSuccessful) {
+                    val details = response.body()!!
+                    _match.value = details.partido
+                    _players.value = details.jugadores
+                    _events.value = details.eventos.sortedByDescending { it.timestampSeconds }
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error fetching details", e)
+            }
+        }
     }
 
     private fun startTimer() {
@@ -57,7 +109,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             while (true) {
                 delay(1000)
                 _match.value?.let { m ->
-                    _match.value = m.copy(elapsedTimeSeconds = m.elapsedTimeSeconds + 1)
+                    val newTime = m.elapsedTimeSeconds + 1
+                    _match.value = m.copy(elapsedTimeSeconds = newTime)
+                    // Sync time with backend occasionally or on specific actions
+                    if (newTime % 30 == 0L) { // Every 30 seconds
+                         syncStatusWithBackend()
+                    }
                 }
             }
         }
@@ -66,24 +123,49 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun stopTimer() {
         timerJob?.cancel()
         timerJob = null
+        syncStatusWithBackend()
+    }
+
+    private fun syncStatusWithBackend() {
+        viewModelScope.launch {
+            val m = _match.value ?: return@launch
+            try {
+                api.updateMatchStatus(m.id!!, mapOf(
+                    "elapsedTimeSeconds" to m.elapsedTimeSeconds,
+                    "isPaused" to m.isPaused,
+                    "isFinished" to m.isFinished,
+                    "currentPeriod" to m.currentPeriod
+                ))
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error syncing status", e)
+            }
+        }
     }
 
     fun togglePause() {
         _match.value?.let { m ->
             _match.value = m.copy(isPaused = !m.isPaused)
+            syncStatusWithBackend()
         }
     }
 
     fun finishMatch() {
         _match.value?.let { m ->
-            _match.value = m.copy(isPaused = true, isFinished = true)
+            _match.value = m.copy(isPaused = true, isFinished = true, currentPeriod = "FIN")
+            syncStatusWithBackend()
+        }
+    }
+
+    fun reopenMatch() {
+        _match.value?.let { m ->
+            _match.value = m.copy(isPaused = true, isFinished = false, currentPeriod = "2DO TIEMPO")
+            syncStatusWithBackend()
         }
     }
 
     fun nextPeriod() {
         _match.value?.let { m ->
             val nextPeriod = if (m.currentPeriod == "1ER TIEMPO") "2DO TIEMPO" else "FIN"
-            // Reset timer only if transitioning from 1st to 2nd half
             val newElapsedTime = if (m.currentPeriod == "1ER TIEMPO") 0L else m.elapsedTimeSeconds
             _match.value = m.copy(
                 currentPeriod = nextPeriod,
@@ -91,67 +173,66 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 elapsedTimeSeconds = newElapsedTime,
                 isFinished = nextPeriod == "FIN"
             )
+            syncStatusWithBackend()
         }
     }
 
     fun registerEvent(type: EventType, dorsal: String, teamId: Int) {
-        _match.value?.let { m ->
-            // Si el dorsal no existe en la lista actual, agregarlo como jugador temporal
-            val playerExists = _players.value.any { it.dorsal == dorsal && it.teamId == teamId }
-            if (!playerExists) {
-                val newPlayer = PlayerEntity(
-                    id = (_players.value.size + 1).toLong(),
-                    dorsal = dorsal,
-                    name = "Jugador $dorsal",
-                    teamId = teamId
+        val m = _match.value ?: return
+        viewModelScope.launch {
+            try {
+                // Ensure player exists in backend
+                api.syncManualPlayer(PlayerEntity(matchId = m.id, dorsal = dorsal, teamId = teamId))
+                
+                // CRITICAL: Sync current match status (time/period) first to avoid desync on refresh
+                api.updateMatchStatus(m.id!!, mapOf(
+                    "elapsedTimeSeconds" to m.elapsedTimeSeconds,
+                    "isPaused" to m.isPaused,
+                    "isFinished" to m.isFinished,
+                    "currentPeriod" to m.currentPeriod
+                ))
+
+                val newEvent = EventEntity(
+                    matchId = m.id,
+                    type = type,
+                    playerDorsal = dorsal,
+                    teamId = teamId,
+                    timestampSeconds = m.elapsedTimeSeconds,
+                    period = m.currentPeriod
                 )
-                _players.value = _players.value + newPlayer
-            }
-
-            val event = EventEntity(
-                id = (_events.value.size + 1).toLong(),
-                type = type,
-                playerDorsal = dorsal,
-                teamId = teamId,
-                timestampSeconds = m.elapsedTimeSeconds,
-                period = m.currentPeriod
-            )
-            _events.value = listOf(event) + _events.value
-
-            if (type == EventType.GOAL) {
-                if (teamId == 0) {
-                    _match.value = m.copy(homeScore = m.homeScore + 1)
-                } else {
-                    _match.value = m.copy(awayScore = m.awayScore + 1)
+                val response = api.registerEvent(newEvent)
+                if (response.isSuccessful) {
+                    fetchFullMatchDetails(m.id!!) // Now it will fetch the updated status
                 }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error registering event", e)
             }
         }
     }
 
-    fun updateEvent(eventId: Long, newDorsal: String) {
-        val currentEvents = _events.value.toMutableList()
-        val index = currentEvents.indexOfFirst { it.id == eventId }
-        if (index != -1) {
-            currentEvents[index] = currentEvents[index].copy(playerDorsal = newDorsal)
-            _events.value = currentEvents
+    // Refactored updateEvent to use String ID
+    fun updateEventById(eventId: String, newDorsal: String) {
+        viewModelScope.launch {
+            try {
+                val response = api.updateEvent(eventId, mapOf("playerDorsal" to newDorsal))
+                if (response.isSuccessful) {
+                    fetchFullMatchDetails(currentMatchId!!)
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error updating event", e)
+            }
         }
     }
 
-    fun deleteEvent(eventId: Long) {
-        val currentEvents = _events.value.toMutableList()
-        val eventToDelete = currentEvents.find { it.id == eventId }
-        if (eventToDelete != null) {
-            currentEvents.remove(eventToDelete)
-            _events.value = currentEvents
-
-            _match.value?.let { m ->
-               if (eventToDelete.type == EventType.GOAL) {
-                   if (eventToDelete.teamId == 0) {
-                       _match.value = m.copy(homeScore = (m.homeScore - 1).coerceAtLeast(0))
-                   } else {
-                       _match.value = m.copy(awayScore = (m.awayScore - 1).coerceAtLeast(0))
-                   }
-               }
+    fun deleteEventById(eventId: String) {
+        viewModelScope.launch {
+            try {
+                val response = api.deleteEvent(eventId)
+                if (response.isSuccessful) {
+                    fetchFullMatchDetails(currentMatchId!!)
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error deleting event", e)
             }
         }
     }
