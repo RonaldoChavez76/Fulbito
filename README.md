@@ -29,9 +29,10 @@
 ## Algunas Capturas de Pantalla -- No son Todas ---
 
 ![img.png](img.png)
-![img_1.png](img_1.png)
+<img width="525" height="522" alt="image" src="https://github.com/user-attachments/assets/fa928839-b850-4161-ab42-68b4f81a3794" />
 ![img_2.png](img_2.png)
-![img_3.png](img_3.png)
+<img width="469" height="410" alt="image" src="https://github.com/user-attachments/assets/8fa34a4e-a1a9-49b4-a3a4-7d73ae7adb46" />
+
 
 </div>
 
