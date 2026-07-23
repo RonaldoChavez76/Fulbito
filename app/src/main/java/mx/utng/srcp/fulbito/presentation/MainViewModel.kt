@@ -22,11 +22,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _events = MutableStateFlow<List<EventEntity>>(emptyList())
     val events: StateFlow<List<EventEntity>> = _events.asStateFlow()
 
+    private val _matchesList = MutableStateFlow<List<MatchEntity>>(emptyList())
+    val matchesList: StateFlow<List<MatchEntity>> = _matchesList.asStateFlow()
+
+    private val _isLoadingMatches = MutableStateFlow(true)
+    val isLoadingMatches: StateFlow<Boolean> = _isLoadingMatches.asStateFlow()
+
     private var timerJob: Job? = null
     private var currentMatchId: String? = null
 
     init {
-        loadOrInitializeMatch()
+        loadAllMatches()
         
         viewModelScope.launch {
             match.collect { m ->
@@ -39,54 +45,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun loadOrInitializeMatch() {
+    fun loadAllMatches() {
         viewModelScope.launch {
+            _isLoadingMatches.value = true
             try {
                 val response = api.getAllMatches()
-                if (response.isSuccessful && !response.body().isNullOrEmpty()) {
-                    val latestMatch = response.body()!!.first()
-                    currentMatchId = latestMatch.id
-                    fetchFullMatchDetails(currentMatchId!!)
-                } else {
-                    createNewMatch()
+                if (response.isSuccessful && response.body() != null) {
+                    _matchesList.value = response.body()!!
                 }
             } catch (e: Exception) {
-                Log.e("MainViewModel", "Error loading match", e)
+                Log.e("MainViewModel", "Error loading matches", e)
+            } finally {
+                _isLoadingMatches.value = false
             }
         }
     }
 
-    private suspend fun createNewMatch() {
-        try {
-            val newMatch = MatchEntity(homeTeam = "Toros FC", awayTeam = "Máquinas")
-            val response = api.createMatch(newMatch)
-            if (response.isSuccessful) {
-                val createdMatch = response.body()!!
-                currentMatchId = createdMatch.id
-                _match.value = createdMatch
-                
-                // Seed initial players for the new match
-                seedPlayers(createdMatch.id!!)
-            }
-        } catch (e: Exception) {
-            Log.e("MainViewModel", "Error creating match", e)
-        }
-    }
-
-    private suspend fun seedPlayers(matchId: String) {
-        val initialPlayers = listOf(
-            PlayerEntity(matchId = matchId, dorsal = "7", name = "Juan", teamId = 0),
-            PlayerEntity(matchId = matchId, dorsal = "10", name = "Pedro", teamId = 0),
-            PlayerEntity(matchId = matchId, dorsal = "14", name = "Luis", teamId = 0),
-            PlayerEntity(matchId = matchId, dorsal = "9", name = "Gomez", teamId = 1),
-            PlayerEntity(matchId = matchId, dorsal = "3", name = "Silva", teamId = 1),
-            PlayerEntity(matchId = matchId, dorsal = "11", name = "Rojas", teamId = 1),
-            PlayerEntity(matchId = matchId, dorsal = "6", name = "Diaz", teamId = 0),
-            PlayerEntity(matchId = matchId, dorsal = "2", name = "Perez", teamId = 1)
-        )
-        initialPlayers.forEach { api.syncManualPlayer(it) }
+    fun selectMatch(matchId: String) {
+        currentMatchId = matchId
         fetchFullMatchDetails(matchId)
     }
+
+
 
     private fun fetchFullMatchDetails(matchId: String) {
         viewModelScope.launch {
