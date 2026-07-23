@@ -34,8 +34,36 @@ fun FulbitoApp() {
     FulbitoTheme {
         SwipeDismissableNavHost(
             navController = navController,
-            startDestination = "dashboard"
+            startDestination = "welcome"
         ) {
+            composable("welcome") {
+                WelcomeScreen(
+                    onStartClick = {
+                        navController.navigate("match_selection")
+                    }
+                )
+            }
+
+            composable("match_selection") {
+                LaunchedEffect(Unit) {
+                    viewModel.loadAllMatches()
+                }
+
+                val matches by viewModel.matchesList.collectAsState()
+                val isLoading by viewModel.isLoadingMatches.collectAsState()
+                
+                MatchSelectionScreen(
+                    matches = matches,
+                    isLoading = isLoading,
+                    onMatchSelected = { matchId ->
+                        viewModel.selectMatch(matchId)
+                        navController.navigate("dashboard") {
+                            popUpTo("match_selection") { inclusive = true }
+                        }
+                    }
+                )
+            }
+
             composable("dashboard") {
                 DashboardScreen(
                     match = match,

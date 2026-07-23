@@ -24,3 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "fulbito"
 include(":app")
+include(":fulbitoapp")
+include(":fulbitotv")
