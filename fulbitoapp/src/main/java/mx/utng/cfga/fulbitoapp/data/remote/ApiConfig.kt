@@ -7,5 +7,5 @@ object ApiConfig {
     // const val BASE_URL = "http://10.0.2.2:3000/api"
     
     // Para dispositivo físico (reemplazar con la IP de la PC en la red local)
-    const val BASE_URL = "http://192.168.1.9:3000/api"
+    const val BASE_URL = "http://192.168.1.72:3000/api"
 }

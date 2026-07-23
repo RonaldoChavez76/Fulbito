@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.*
@@ -83,15 +84,15 @@ fun AdminDashboardScreen(
                         )
                     }
                     Spacer(modifier = Modifier.width(4.dp))
-                    // Botón Salir
+                    // Botón Volver a Ligas
                     IconButton(
-                        onClick = { navController.navigate("login") { popUpTo(0) } },
+                        onClick = { navController.popBackStack() },
                         modifier = Modifier
                             .padding(end = 8.dp)
                             .clip(CircleShape)
                             .background(if (isDarkMode) Color(0xFF2E2E2E) else FulbitoLightGreen.copy(alpha = 0.5f))
                     ) {
-                        Icon(Icons.Default.ExitToApp, contentDescription = "Salir", tint = Color.White)
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver a Ligas", tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = bgColor)

@@ -28,12 +28,25 @@ fun AppNavigation(isDarkMode: Boolean, onToggleDarkMode: () -> Unit) {
         composable("login") {
             LoginScreen(
                 viewModel = loginViewModel,
-                onLoginSuccess = {
-                    adminViewModel.reloadAll()
-                    navController.navigate("admin_dashboard") {
-                        popUpTo("login") { inclusive = true }
+                onLoginSuccess = { role ->
+                    if (role == "Admin") {
+                        adminViewModel.reloadAll()
+                        navController.navigate("admin_league_selection") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    } else if (role == "Jugador") {
+                        navController.navigate("player_dashboard") {
+                            popUpTo("login") { inclusive = true }
+                        }
                     }
                 }
+            )
+        }
+        composable("admin_league_selection") {
+            mx.utng.cfga.fulbitoapp.presentation.screens.LeagueSelectionScreen(
+                navController = navController,
+                adminViewModel = adminViewModel,
+                loginViewModel = loginViewModel
             )
         }
         composable("admin_dashboard") {
@@ -52,6 +65,20 @@ fun AppNavigation(isDarkMode: Boolean, onToggleDarkMode: () -> Unit) {
         }
         composable("admin_matches") {
             AdminMatchScreen(navController = navController, viewModel = adminViewModel)
+        }
+        composable("player_dashboard") {
+            mx.utng.cfga.fulbitoapp.presentation.screens.PlayerDashboardScreen(
+                navController = navController,
+                loginViewModel = loginViewModel
+            )
+        }
+        composable("player_profile") {
+            val playerViewModel: mx.utng.cfga.fulbitoapp.presentation.PlayerViewModel = viewModel()
+            mx.utng.cfga.fulbitoapp.presentation.screens.PlayerProfileScreen(
+                navController = navController,
+                loginViewModel = loginViewModel,
+                playerViewModel = playerViewModel
+            )
         }
     }
 }

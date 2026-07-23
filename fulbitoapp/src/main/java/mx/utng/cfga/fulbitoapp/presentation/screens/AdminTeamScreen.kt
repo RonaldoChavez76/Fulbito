@@ -38,10 +38,16 @@ import mx.utng.cfga.fulbitoapp.presentation.AdminViewModel
 @Composable
 fun AdminTeamScreen(navController: NavController, viewModel: AdminViewModel) {
     val teams by viewModel.teams.collectAsState()
+    val allTeams by viewModel.allTeams.collectAsState()
     var showForm by remember { mutableStateOf(false) }
+    var showExistingDialog by remember { mutableStateOf(false) }
     var teamToEdit by remember { mutableStateOf<Team?>(null) }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchAllTeams()
+    }
 
     Scaffold(
         containerColor = FulbitoScreenBg,
@@ -64,18 +70,36 @@ fun AdminTeamScreen(navController: NavController, viewModel: AdminViewModel) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                Button(
-                    onClick = {
-                        teamToEdit = null
-                        showForm = !showForm
-                    },
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = FulbitoGreen)
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Nuevo Equipo", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = {
+                            teamToEdit = null
+                            showForm = !showForm
+                            showExistingDialog = false
+                        },
+                        modifier = Modifier.weight(1f).height(52.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = FulbitoGreen)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Nuevo", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            showExistingDialog = !showExistingDialog
+                            showForm = false
+                        },
+                        modifier = Modifier.weight(1f).height(52.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, FulbitoGreen),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = FulbitoGreen)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Existente", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    }
                 }
             }
 
@@ -87,7 +111,6 @@ fun AdminTeamScreen(navController: NavController, viewModel: AdminViewModel) {
                         onRegister = { id, name, cat, cap, imageUri, existingShieldUrl ->
                             coroutineScope.launch {
                                 var finalShieldUrl = existingShieldUrl
-                                // Si seleccionó una nueva imagen, la subimos
                                 if (imageUri != null) {
                                     val uploadedUrl = viewModel.uploadImage(context, imageUri)
                                     if (uploadedUrl != null) {
@@ -104,6 +127,47 @@ fun AdminTeamScreen(navController: NavController, viewModel: AdminViewModel) {
                             }
                         }
                     )
+                }
+            }
+
+            if (showExistingDialog) {
+                item {
+                    val availableTeams = allTeams.filter { t -> !t.leagues.contains(viewModel.currentLeague?._id) }
+                    Card(
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(2.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text("Selecciona un equipo existente", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            if (availableTeams.isEmpty()) {
+                                Text("No hay equipos disponibles para agregar.", color = Color.Gray)
+                            } else {
+                                availableTeams.forEach { t ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { 
+                                                viewModel.addTeamToLeague(t)
+                                                showExistingDialog = false 
+                                            }
+                                            .padding(vertical = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(t.name, modifier = Modifier.weight(1f))
+                                        Icon(Icons.Default.Add, contentDescription = "Agregar", tint = FulbitoGreen)
+                                    }
+                                    HorizontalDivider()
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            TextButton(onClick = { showExistingDialog = false }, modifier = Modifier.align(Alignment.End)) {
+                                Text("Cerrar", color = Color.Red)
+                            }
+                        }
+                    }
                 }
             }
 

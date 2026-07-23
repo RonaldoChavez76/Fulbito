@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import mx.utng.cfga.fulbitoapp.data.remote.ApiConfig
 import mx.utng.cfga.fulbitoapp.data.remote.Match
 import mx.utng.cfga.fulbitoapp.data.remote.Player
+import mx.utng.cfga.fulbitoapp.data.remote.League
 import mx.utng.cfga.fulbitoapp.data.remote.RetrofitInstance
 import mx.utng.cfga.fulbitoapp.data.remote.Team
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -31,30 +32,96 @@ class AdminViewModel : ViewModel() {
     private val _matches = MutableStateFlow<List<Match>>(emptyList())
     val matches: StateFlow<List<Match>> = _matches
 
+    private val _leagues = MutableStateFlow<List<League>>(emptyList())
+    val leagues: StateFlow<List<League>> = _leagues
+
+    var currentLeague: League? = null
+
     init {
-        fetchTeams()
-        fetchPlayers()
-        fetchMatches()
+        fetchLeagues()
     }
 
     fun reloadAll() {
-        fetchTeams()
+        fetchLeagues()
+        if (currentLeague != null) {
+            fetchTeams()
+            fetchMatches()
+        }
         fetchPlayers()
+    }
+
+    // --- Leagues ---
+    fun fetchLeagues() {
+        viewModelScope.launch {
+            try {
+                _leagues.value = api.getLeagues()
+            } catch (e: Exception) { e.printStackTrace() }
+        }
+    }
+    fun createLeague(league: League, onComplete: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                api.createLeague(league)
+                fetchLeagues()
+                onComplete()
+            } catch (e: Exception) { e.printStackTrace() }
+        }
+    }
+    fun updateLeague(id: String, league: League, onComplete: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                api.updateLeague(id, league)
+                fetchLeagues()
+                onComplete()
+            } catch (e: Exception) { e.printStackTrace() }
+        }
+    }
+    fun selectLeague(league: League) {
+        currentLeague = league
+        fetchTeams()
         fetchMatches()
     }
 
     // --- Teams ---
+    private val _allTeams = MutableStateFlow<List<Team>>(emptyList())
+    val allTeams: StateFlow<List<Team>> = _allTeams
+
+    fun fetchAllTeams() {
+        viewModelScope.launch {
+            try {
+                _allTeams.value = api.getTeams(leagueId = null)
+            } catch (e: Exception) { e.printStackTrace() }
+        }
+    }
+
     fun fetchTeams() {
         viewModelScope.launch {
             try {
-                _teams.value = api.getTeams()
+                _teams.value = api.getTeams(leagueId = currentLeague?._id)
+            } catch (e: Exception) { e.printStackTrace() }
+        }
+    }
+
+    fun addTeamToLeague(team: Team) {
+        viewModelScope.launch {
+            try {
+                val leagueId = currentLeague?._id ?: return@launch
+                if (!team.leagues.contains(leagueId)) {
+                    val updatedTeam = team.copy(leagues = team.leagues + leagueId)
+                    api.updateTeam(team._id ?: "", updatedTeam)
+                    fetchTeams()
+                }
             } catch (e: Exception) { e.printStackTrace() }
         }
     }
     fun createTeam(team: Team) {
         viewModelScope.launch {
             try {
-                api.createTeam(team)
+                val leagueId = currentLeague?._id
+                val teamWithLeague = if (leagueId != null && !team.leagues.contains(leagueId)) {
+                    team.copy(leagues = team.leagues + (leagueId as String))
+                } else team
+                api.createTeam(teamWithLeague)
                 fetchTeams()
             } catch (e: Exception) { e.printStackTrace() }
         }
@@ -109,11 +176,22 @@ class AdminViewModel : ViewModel() {
         }
     }
 
+    fun generateAccount(playerId: String, onSuccess: (String, String) -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = api.generateAccount(playerId)
+                onSuccess(response.credentials.username, response.credentials.password)
+            } catch (e: Exception) {
+                onError("Error: El jugador ya tiene cuenta o hubo un problema.")
+            }
+        }
+    }
+
     // --- Matches ---
     fun fetchMatches() {
         viewModelScope.launch {
             try {
-                _matches.value = api.getMatches()
+                _matches.value = api.getMatches(leagueId = currentLeague?._id)
             } catch (e: Exception) { e.printStackTrace() }
         }
     }
@@ -148,7 +226,10 @@ class AdminViewModel : ViewModel() {
     fun createMatch(match: Match) {
         viewModelScope.launch {
             try {
-                api.createMatch(match)
+                val matchWithLeague = if (currentLeague != null) {
+                    match.copy(leagueRef = currentLeague?._id)
+                } else match
+                api.createMatch(matchWithLeague)
                 fetchMatches()
             } catch (e: Exception) { e.printStackTrace() }
         }
