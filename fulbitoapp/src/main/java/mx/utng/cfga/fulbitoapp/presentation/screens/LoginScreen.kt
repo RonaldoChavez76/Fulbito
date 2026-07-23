@@ -27,7 +27,7 @@ import mx.utng.cfga.fulbitoapp.presentation.LoginViewModel
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: (String) -> Unit
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

@@ -1,11 +1,19 @@
 package mx.utng.cfga.fulbitoapp.data.remote
 
+data class League(
+    val _id: String? = null,
+    val name: String = "",
+    val description: String = "",
+    val logoUrl: String? = ""
+)
+
 data class Team(
     val _id: String? = null,
     val name: String = "",
     val category: String = "Mayor",
     val captain: String = "",
-    val shieldUrl: String? = ""
+    val shieldUrl: String? = "",
+    val leagues: List<String> = emptyList()
 )
 
 data class Player(
@@ -24,6 +32,7 @@ data class Match(
     val awayTeam: String? = "",
     val homeTeamRef: String? = null,
     val awayTeamRef: String? = null,
+    val leagueRef: String? = null,
     val fecha: String? = "",
     val hora: String? = "",
     val cancha: String? = "",

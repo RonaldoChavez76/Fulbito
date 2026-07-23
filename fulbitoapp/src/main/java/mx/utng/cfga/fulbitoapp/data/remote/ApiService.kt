@@ -16,9 +16,21 @@ interface ApiService {
     @POST("upload")
     suspend fun uploadImage(@Part image: MultipartBody.Part): UploadResponse
 
+    // Leagues
+    @GET("leagues")
+    suspend fun getLeagues(): List<League>
+    @GET("leagues/{id}")
+    suspend fun getLeagueById(@Path("id") id: String): League
+    @POST("leagues")
+    suspend fun createLeague(@Body league: League): League
+    @PUT("leagues/{id}")
+    suspend fun updateLeague(@Path("id") id: String, @Body league: League): League
+    @DELETE("leagues/{id}")
+    suspend fun deleteLeague(@Path("id") id: String)
+
     // Teams
     @GET("teams")
-    suspend fun getTeams(): List<Team>
+    suspend fun getTeams(@Query("leagueId") leagueId: String? = null): List<Team>
     @POST("teams")
     suspend fun createTeam(@Body team: Team): Team
     @PUT("teams/{id}")
@@ -38,7 +50,7 @@ interface ApiService {
 
     // Matches
     @GET("matches")
-    suspend fun getMatches(): List<Match>
+    suspend fun getMatches(@Query("leagueId") leagueId: String? = null): List<Match>
     @POST("matches")
     suspend fun createMatch(@Body match: Match): Match
     @PUT("matches/{id}")
@@ -52,6 +64,15 @@ interface ApiService {
     
     @POST("auth/register")
     suspend fun register(@Body request: AuthRequest): AuthResponse
+    
+    @PUT("auth/change-password")
+    suspend fun changePassword(@Body request: ChangePasswordRequest): ChangePasswordResponse
+
+    @POST("players/{id}/generate-account")
+    suspend fun generateAccount(@Path("id") id: String): GenerateAccountResponse
+    
+    @GET("players/my-stats/{userId}")
+    suspend fun getMyStats(@Path("userId") userId: String): MyStatsResponse
 }
 
 object RetrofitInstance {

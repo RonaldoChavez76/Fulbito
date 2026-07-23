@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -47,6 +48,35 @@ fun AdminPlayerScreen(navController: NavController, viewModel: AdminViewModel) {
     
     var showForm by remember { mutableStateOf(false) }
     var playerToEdit by remember { mutableStateOf<Player?>(null) }
+    
+    var showCredentialsDialog by remember { mutableStateOf(false) }
+    var generatedUsername by remember { mutableStateOf("") }
+    var generatedPassword by remember { mutableStateOf("") }
+    var credentialsError by remember { mutableStateOf("") }
+
+    if (showCredentialsDialog) {
+        AlertDialog(
+            onDismissRequest = { showCredentialsDialog = false },
+            title = { Text(if (credentialsError.isNotEmpty()) "Error" else "Credenciales Generadas") },
+            text = {
+                if (credentialsError.isNotEmpty()) {
+                    Text(credentialsError)
+                } else {
+                    Column {
+                        Text("Entrega estos datos al jugador. Solo se mostrarán esta vez.", color = Color.Gray, fontSize = 12.sp)
+                        Spacer(Modifier.height(8.dp))
+                        Text("Usuario: $generatedUsername", fontWeight = FontWeight.Bold)
+                        Text("Contraseña: $generatedPassword", fontWeight = FontWeight.Bold)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showCredentialsDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 
     Scaffold(
         containerColor = FulbitoScreenBg,
@@ -151,7 +181,22 @@ fun AdminPlayerScreen(navController: NavController, viewModel: AdminViewModel) {
                             playerToEdit = player
                             showForm = true
                         },
-                        onDelete = { viewModel.deletePlayer(player._id ?: "") }
+                        onDelete = { viewModel.deletePlayer(player._id ?: "") },
+                        onGenerateAccount = { playerId ->
+                            viewModel.generateAccount(
+                                playerId = playerId,
+                                onSuccess = { user, pass ->
+                                    credentialsError = ""
+                                    generatedUsername = user
+                                    generatedPassword = pass
+                                    showCredentialsDialog = true
+                                },
+                                onError = { err ->
+                                    credentialsError = err
+                                    showCredentialsDialog = true
+                                }
+                            )
+                        }
                     )
                 }
             }
@@ -340,7 +385,7 @@ fun PlayerFormCard(
 }
 
 @Composable
-fun PlayerCard(player: Player, onEdit: () -> Unit, onDelete: () -> Unit) {
+fun PlayerCard(player: Player, onEdit: () -> Unit, onDelete: () -> Unit, onGenerateAccount: (String) -> Unit) {
     Card(
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -382,6 +427,9 @@ fun PlayerCard(player: Player, onEdit: () -> Unit, onDelete: () -> Unit) {
                 Text("Posición: ${player.position ?: ""}", color = Color.Gray, fontSize = 13.sp)
             }
             Row {
+                IconButton(onClick = { onGenerateAccount(player._id ?: "") }) {
+                    Icon(Icons.Default.Lock, contentDescription = "Generar Cuenta", tint = Color(0xFFFFB300))
+                }
                 IconButton(onClick = onEdit) {
                     Icon(Icons.Outlined.Edit, contentDescription = "Editar", tint = FulbitoGreen)
                 }
