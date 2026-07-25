@@ -13,7 +13,8 @@ data class Team(
     val category: String = "Mayor",
     val captain: String = "",
     val shieldUrl: String? = "",
-    val leagues: List<String> = emptyList()
+    val leagues: List<String> = emptyList(),
+    val captainDorsal: String? = null
 )
 
 data class Player(
@@ -23,7 +24,8 @@ data class Player(
     val position: String? = "Jugador",
     val photoUrl: String? = "",
     val teamRef: String? = null,
-    val matchId: String? = null
+    val matchId: String? = null,
+    val isCaptain: Boolean = false
 )
 
 data class Match(
@@ -44,4 +46,11 @@ data class Match(
 
 data class UploadResponse(
     val url: String
+)
+
+data class CaptainInfoResponse(
+    val isCaptain: Boolean,
+    val team: Team? = null,
+    val players: List<Player> = emptyList(),
+    val upcomingMatches: List<Match> = emptyList()
 )

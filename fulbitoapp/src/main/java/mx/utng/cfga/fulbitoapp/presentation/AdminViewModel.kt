@@ -76,6 +76,14 @@ class AdminViewModel : ViewModel() {
             } catch (e: Exception) { e.printStackTrace() }
         }
     }
+    fun deleteLeague(id: String) {
+        viewModelScope.launch {
+            try {
+                api.deleteLeague(id)
+                fetchLeagues()
+            } catch (e: Exception) { e.printStackTrace() }
+        }
+    }
     fun selectLeague(league: League) {
         currentLeague = league
         fetchTeams()
@@ -123,6 +131,7 @@ class AdminViewModel : ViewModel() {
                 } else team
                 api.createTeam(teamWithLeague)
                 fetchTeams()
+                fetchPlayers() // Refrescar jugadores por si se creó un capitán
             } catch (e: Exception) { e.printStackTrace() }
         }
     }

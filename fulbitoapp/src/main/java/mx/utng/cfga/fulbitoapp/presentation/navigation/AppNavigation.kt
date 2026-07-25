@@ -23,6 +23,7 @@ fun AppNavigation(isDarkMode: Boolean, onToggleDarkMode: () -> Unit) {
     val navController = rememberNavController()
     val adminViewModel: AdminViewModel = viewModel()
     val loginViewModel: LoginViewModel = viewModel()
+    val playerViewModel: mx.utng.cfga.fulbitoapp.presentation.PlayerViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = "login") {
         composable("login") {
@@ -46,7 +47,9 @@ fun AppNavigation(isDarkMode: Boolean, onToggleDarkMode: () -> Unit) {
             mx.utng.cfga.fulbitoapp.presentation.screens.LeagueSelectionScreen(
                 navController = navController,
                 adminViewModel = adminViewModel,
-                loginViewModel = loginViewModel
+                loginViewModel = loginViewModel,
+                isDarkMode = isDarkMode,
+                onToggleDarkMode = onToggleDarkMode
             )
         }
         composable("admin_dashboard") {
@@ -69,11 +72,11 @@ fun AppNavigation(isDarkMode: Boolean, onToggleDarkMode: () -> Unit) {
         composable("player_dashboard") {
             mx.utng.cfga.fulbitoapp.presentation.screens.PlayerDashboardScreen(
                 navController = navController,
-                loginViewModel = loginViewModel
+                loginViewModel = loginViewModel,
+                playerViewModel = playerViewModel
             )
         }
         composable("player_profile") {
-            val playerViewModel: mx.utng.cfga.fulbitoapp.presentation.PlayerViewModel = viewModel()
             mx.utng.cfga.fulbitoapp.presentation.screens.PlayerProfileScreen(
                 navController = navController,
                 loginViewModel = loginViewModel,

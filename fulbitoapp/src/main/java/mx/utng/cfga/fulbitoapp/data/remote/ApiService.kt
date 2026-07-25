@@ -73,6 +73,9 @@ interface ApiService {
     
     @GET("players/my-stats/{userId}")
     suspend fun getMyStats(@Path("userId") userId: String): MyStatsResponse
+
+    @GET("players/captain-info/{userId}")
+    suspend fun getCaptainInfo(@Path("userId") userId: String): CaptainInfoResponse
 }
 
 object RetrofitInstance {
