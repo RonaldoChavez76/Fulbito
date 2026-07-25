@@ -108,7 +108,7 @@ fun AdminTeamScreen(navController: NavController, viewModel: AdminViewModel) {
                     TeamFormCard(
                         initialTeam = teamToEdit,
                         onCancel = { showForm = false },
-                        onRegister = { id, name, cat, cap, imageUri, existingShieldUrl ->
+                        onRegister = { id, name, cat, cap, imageUri, existingShieldUrl, capDorsal ->
                             coroutineScope.launch {
                                 var finalShieldUrl = existingShieldUrl
                                 if (imageUri != null) {
@@ -119,9 +119,9 @@ fun AdminTeamScreen(navController: NavController, viewModel: AdminViewModel) {
                                 }
 
                                 if (id != null) {
-                                    viewModel.updateTeam(id, Team(name = name, category = cat, captain = cap, shieldUrl = finalShieldUrl))
+                                    viewModel.updateTeam(id, Team(name = name, category = cat, captain = cap, shieldUrl = finalShieldUrl, captainDorsal = capDorsal))
                                 } else {
-                                    viewModel.createTeam(Team(name = name, category = cat, captain = cap, shieldUrl = finalShieldUrl))
+                                    viewModel.createTeam(Team(name = name, category = cat, captain = cap, shieldUrl = finalShieldUrl, captainDorsal = capDorsal))
                                 }
                                 showForm = false
                             }
@@ -190,11 +190,12 @@ fun AdminTeamScreen(navController: NavController, viewModel: AdminViewModel) {
 fun TeamFormCard(
     initialTeam: Team?, 
     onCancel: () -> Unit, 
-    onRegister: (String?, String, String, String, Uri?, String) -> Unit
+    onRegister: (String?, String, String, String, Uri?, String, String?) -> Unit
 ) {
     var name by remember(initialTeam) { mutableStateOf(initialTeam?.name ?: "") }
     var category by remember(initialTeam) { mutableStateOf(initialTeam?.category ?: "Mayor") }
     var captain by remember(initialTeam) { mutableStateOf(initialTeam?.captain ?: "") }
+    var captainDorsal by remember(initialTeam) { mutableStateOf(initialTeam?.captainDorsal ?: "") }
     var existingShieldUrl by remember(initialTeam) { mutableStateOf(initialTeam?.shieldUrl ?: "") }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var expandedCategory by remember { mutableStateOf(false) }
@@ -307,6 +308,23 @@ fun TeamFormCard(
                 )
             )
 
+            if (initialTeam == null) {
+                Text("DORSAL DEL CAPITÁN (Opcional - Registra al capitán como jugador)", fontSize = 10.sp, color = Color.Gray, letterSpacing = 1.sp)
+                OutlinedTextField(
+                    value = captainDorsal,
+                    onValueChange = { captainDorsal = it },
+                    placeholder = { Text("Dorsal (ej. 10)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = FulbitoGreen,
+                        focusedLabelColor = FulbitoGreen,
+                        cursorColor = FulbitoGreen,
+                        unfocusedBorderColor = Color(0xFFDDDDDD)
+                    )
+                )
+            }
+
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 8.dp)) {
                 OutlinedButton(
                     onClick = onCancel, 
@@ -320,7 +338,7 @@ fun TeamFormCard(
                 Button(
                     onClick = {
                         isUploading = true
-                        onRegister(initialTeam?._id, name, category, captain, selectedImageUri, existingShieldUrl)
+                        onRegister(initialTeam?._id, name, category, captain, selectedImageUri, existingShieldUrl, captainDorsal.takeIf { it.isNotBlank() })
                     },
                     modifier = Modifier.weight(1f),
                     enabled = name.isNotBlank() && !isUploading,

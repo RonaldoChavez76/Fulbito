@@ -38,9 +38,9 @@ data class ChangePasswordResponse(
 )
 
 data class PlayerMatchHistory(
-    val matchId: String,
+    val matchId: String?,
     val teamId: Int,
-    val dorsal: String,
+    val dorsal: String?,
     val goals: Int,
     val yellowCards: Int,
     val redCards: Int

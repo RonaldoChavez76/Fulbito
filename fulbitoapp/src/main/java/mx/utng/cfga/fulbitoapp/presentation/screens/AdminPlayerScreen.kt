@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -301,7 +303,7 @@ fun PlayerFormCard(
                             contentScale = ContentScale.Crop
                         )
                     } else {
-                        Icon(Icons.Default.Add, contentDescription = "Añadir foto", tint = FulbitoGreen)
+                        Icon(Icons.Default.Add, contentDescription = "Añadir foto", tint = Color.White)
                     }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
@@ -423,7 +425,30 @@ fun PlayerCard(player: Player, onEdit: () -> Unit, onDelete: () -> Unit, onGener
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(player.name ?: "", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = player.name ?: "", 
+                        fontWeight = FontWeight.Bold, 
+                        fontSize = 16.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    if (player.isCaptain) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Row(
+                            modifier = Modifier
+                                .background(Color(0xFFFFF8E1), RoundedCornerShape(12.dp))
+                                .border(1.dp, Color(0xFFFFB300), RoundedCornerShape(12.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Star, contentDescription = "Capitán", tint = Color(0xFFFFB300), modifier = Modifier.size(12.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("CAPITÁN", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFB300))
+                        }
+                    }
+                }
                 Text("Posición: ${player.position ?: ""}", color = Color.Gray, fontSize = 13.sp)
             }
             Row {

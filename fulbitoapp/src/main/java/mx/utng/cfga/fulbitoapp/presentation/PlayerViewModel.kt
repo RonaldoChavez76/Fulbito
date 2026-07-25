@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import mx.utng.cfga.fulbitoapp.data.remote.CaptainInfoResponse
 import mx.utng.cfga.fulbitoapp.data.remote.ChangePasswordRequest
 import mx.utng.cfga.fulbitoapp.data.remote.MyStatsResponse
 import mx.utng.cfga.fulbitoapp.data.remote.RetrofitInstance
@@ -21,6 +22,9 @@ class PlayerViewModel : ViewModel() {
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
+
+    private val _captainInfo = MutableStateFlow<CaptainInfoResponse?>(null)
+    val captainInfo: StateFlow<CaptainInfoResponse?> = _captainInfo.asStateFlow()
 
     fun fetchMyStats(userId: String) {
         viewModelScope.launch {
@@ -43,6 +47,16 @@ class PlayerViewModel : ViewModel() {
                 onSuccess()
             } catch (e: Exception) {
                 onError("Error al cambiar contraseña, verifica tu contraseña actual.")
+            }
+        }
+    }
+
+    fun fetchCaptainInfo(userId: String) {
+        viewModelScope.launch {
+            try {
+                _captainInfo.value = api.getCaptainInfo(userId)
+            } catch (e: Exception) {
+                _captainInfo.value = CaptainInfoResponse(isCaptain = false)
             }
         }
     }

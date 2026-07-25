@@ -21,7 +21,7 @@ interface ApiService {
 }
 
 object RetrofitInstance {
-    const val currentIp = "192.168.1.9" // TODO:cambiarla por la ip del dispositivo real o maquina virtual
+    const val currentIp = "192.168.1.16" // TODO:cambiarla por la ip del dispositivo real o maquina virtual
     private const val BASE_URL = "http://$currentIp:3000/"
 
     private val retrofit by lazy {
