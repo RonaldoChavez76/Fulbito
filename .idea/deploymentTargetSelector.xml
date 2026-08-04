@@ -15,10 +15,10 @@
       </SelectionState>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-07-22T19:26:29.947431800Z">
+        <DropdownSelection timestamp="2026-08-04T18:38:08.312909500Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=ZY227BG524" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Ces4R\.android\avd\Wear_OS_Large_Round.avd" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -26,10 +26,10 @@
       </SelectionState>
       <SelectionState runConfigName="fulbitoapp">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-07-22T19:26:29.947431800Z">
+        <DropdownSelection timestamp="2026-08-04T18:37:46.678147800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=ZY227BG524" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Ces4R\.android\avd\Wear_OS_Large_Round.avd" />
             </handle>
           </Target>
         </DropdownSelection>
