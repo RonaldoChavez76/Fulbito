@@ -62,4 +62,9 @@ dependencies {
     
     // Lifecycle ViewModel Compose
     implementation(libs.lifecycle.viewmodel.compose)
+
+    // Socket.IO para notificaciones en tiempo real
+    implementation("io.socket:socket.io-client:2.1.0") {
+        exclude(group = "org.json", module = "json")
+    }
 }
