@@ -1,7 +1,7 @@
 [versions]
 agp = "9.2.1"
 playServicesWearable = "20.0.1"
-kotlin = "2.2.10"
+kotlin = "2.0.21"
 composeBom = "2024.09.00"
 composeMaterial3 = "1.5.6"
 composeFoundation = "1.5.6"
@@ -9,12 +9,22 @@ composeUiTooling = "1.5.6"
 wearToolingPreview = "1.0.0"
 activityCompose = "1.13.0"
 coreSplashscreen = "1.2.0"
+core-ktx = "1.12.0"
+lifecycle-runtime-ktx = "2.7.0"
+navigation-compose = "2.7.7"
+material3 = "1.2.1"
 room = "2.6.1"
 navigationWear = "1.4.1"
 lifecycle = "2.8.7"
 ksp = "2.0.21-1.0.28"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
+androidBuiltInKotlin = "9.2.1"
+appcompat = "1.7.1"
+tvFoundation = "1.0.0"
+tvMaterial = "1.1.0"
+coil = "2.7.0"
+socket-io = "2.1.2"
 
 [libraries]
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
@@ -30,6 +40,10 @@ compose-foundation = { group = "androidx.wear.compose", name = "compose-foundati
 compose-ui-tooling = { group = "androidx.wear.compose", name = "compose-ui-tooling", version.ref = "composeUiTooling" }
 wear-tooling-preview = { group = "androidx.wear", name = "wear-tooling-preview", version.ref = "wearToolingPreview" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
+lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
+material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
 core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
@@ -40,9 +54,16 @@ lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-ru
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+tv-foundation = { group = "androidx.tv", name = "tv-foundation", version.ref = "tvFoundation" }
+tv-material = { group = "androidx.tv", name = "tv-material", version.ref = "tvMaterial" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+socket-io = { group = "io.socket", name = "socket.io-client", version.ref = "socket-io" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+android-built-in1-kotlin = { id = "com.android.built-in-kotlin", version.ref = "androidBuiltInKotlin" }
 
