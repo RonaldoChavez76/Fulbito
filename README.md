@@ -9,30 +9,56 @@
   <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" />
 </p>
 
-**El Proyecto** es una solución integral para la gestión de partidos de fútbol en tiempo real, diseñada específicamente para el ecosistema **Wear OS**. Permite a árbitros y aficionados registrar cada incidente del encuentro directamente desde su muñeca, sincronizando los datos con un backend robusto.
+**Fulbito** es una solución integral para la gestión de partidos de fútbol en tiempo real, diseñada específicamente para el ecosistema **Wear OS, Android Móvil y Android TV**. 
+
+### 🎯 Beneficiario del Proyecto
+Esta aplicación está dirigida a **Ligas de fútbol amateur, árbitros y capitanes de equipo**. Resuelve el problema de la gestión manual del partido al proporcionar una herramienta digital que el árbitro puede usar directamente desde su muñeca (reloj), mientras que los capitanes pueden ver sus estadísticas en el teléfono y los espectadores pueden ver el marcador en tiempo real en una pantalla (Android TV o Cast).
+
+---
+
+## 🏗️ Diagrama de Arquitectura
+
+El flujo de información de la aplicación funciona de la siguiente manera:
+
+```mermaid
+graph LR
+    A[⌚ Sensor/Reloj\nWear OS] -->|Registra Goles y Tarjetas| B[☁️ Backend Node.js\nAPI REST & Socket.io]
+    B -->|Sincronización| C[📱 Teléfono\nApp Admin y Jugador]
+    B -->|Transmisión en Vivo| D[📺 TV / Cast\nMarcador Android TV]
+```
 
 ---
 
 ##  Características Principales
 
-- **️ Cronómetro Inteligente:** Control total del tiempo de juego (pausa, reanudación y cambio de periodos).
-- ** Marcador en Vivo:** Registro instantáneo de goles para local y visitante.
-- ** Gestión de Sanciones:** Registro rápido de tarjetas amarillas y rojas.
-- ** Historial de Eventos:** Consulta todos los sucesos del partido cronológicamente.
-- ** Sincronización Real-time:** Conexión con API REST para persistencia en la nube.
-- ** UI Optimizada:** Interfaz adaptada para pantallas circulares y cuadradas con Jetpack Compose.
+- **⏱️ Cronómetro Inteligente:** Control total del tiempo de juego (pausa, reanudación y cambio de periodos).
+- **⚽ Marcador en Vivo:** Registro instantáneo de goles para local y visitante.
+- **🟨 Gestión de Sanciones:** Registro rápido de tarjetas amarillas y rojas.
+- **📜 Historial de Eventos:** Consulta todos los sucesos del partido cronológicamente.
+- **🔄 Sincronización Real-time:** Conexión con API REST y Socket.io para actualizaciones en vivo.
+- **🎨 UI Optimizada:** Interfaz adaptada para pantallas circulares, teléfonos y TV con Jetpack Compose.
 
 ---
 
 <div align="center">
 
-## Algunas Capturas de Pantalla -- No son Todas ---
+## 📸 Capturas de Pantalla
 
+### Wear OS (Reloj)
 ![img.png](img.png)
 <img width="525" height="522" alt="image" src="https://github.com/user-attachments/assets/fa928839-b850-4161-ab42-68b4f81a3794" />
 ![img_2.png](img_2.png)
 <img width="469" height="410" alt="image" src="https://github.com/user-attachments/assets/8fa34a4e-a1a9-49b4-a3a4-7d73ae7adb46" />
 
+### App Móvil (Teléfono)
+> *(Sube aquí la captura de la app móvil del dashboard o perfil)*
+<!-- Reemplaza el link con tu imagen -->
+<img width="300" alt="Captura Teléfono" src="https://via.placeholder.com/300x600.png?text=Captura+Teléfono" />
+
+### Pantalla / Android TV
+> *(Sube aquí la captura del marcador en la TV)*
+<!-- Reemplaza el link con tu imagen -->
+<img width="600" alt="Captura TV" src="https://via.placeholder.com/800x450.png?text=Captura+TV" />
 
 </div>
 
