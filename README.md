@@ -51,14 +51,14 @@ graph LR
 <img width="469" height="410" alt="image" src="https://github.com/user-attachments/assets/8fa34a4e-a1a9-49b4-a3a4-7d73ae7adb46" />
 
 ### App Móvil (Teléfono)
-> *(Sube aquí la captura de la app móvil del dashboard o perfil)*
+> 
 <!-- Reemplaza el link con tu imagen -->
-<img width="300" alt="Captura Teléfono" src="https://via.placeholder.com/300x600.png?text=Captura+Teléfono" />
+<img width="300" alt="Captura Teléfono" src="![alt text](image.png)" />
 
 ### Pantalla / Android TV
-> *(Sube aquí la captura del marcador en la TV)*
+
 <!-- Reemplaza el link con tu imagen -->
-<img width="600" alt="Captura TV" src="https://via.placeholder.com/800x450.png?text=Captura+TV" />
+<img width="600" alt="Captura TV" src="![alt text](image-1.png)" />
 
 </div>
 
@@ -93,5 +93,10 @@ graph LR
 
   <i>Grupo GIDS6093</i>
 </p>
+
+
+## Arquitectura de la aplicación
+<img width="905" height="912" alt="imagen" src="https://github.com/user-attachments/assets/6a1ac2b4-9d91-4de0-b15a-ff323a92dbaa" />
+
 
 
