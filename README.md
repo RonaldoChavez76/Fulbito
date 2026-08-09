@@ -16,7 +16,7 @@ Esta aplicación está dirigida a **Ligas de fútbol amateur, árbitros y capita
 
 ---
 
-## 🏗️ Diagrama de Arquitectura
+##  Diagrama de Arquitectura
 
 El flujo de información de la aplicación funciona de la siguiente manera:
 
@@ -53,14 +53,15 @@ graph LR
 ### App Móvil (Teléfono)
 > 
 <!-- Reemplaza el link con tu imagen -->
-<img width="300" alt="Captura Teléfono" src="![alt text](image.png)" />
+<img width="606" height="1280" alt="image" src="https://github.com/user-attachments/assets/28b8519c-4ee5-4d36-a074-ca5ebf6de96c" />
+
 
 ### Pantalla / Android TV
 
 <!-- Reemplaza el link con tu imagen -->
-<img width="600" alt="Captura TV" src="![alt text](image-1.png)" />
 
-</div>
+<img width="1243" height="747" alt="image" src="https://github.com/user-attachments/assets/09624741-5fe9-49e0-9b87-20c2db45963e" />
+
 
 ---
 
