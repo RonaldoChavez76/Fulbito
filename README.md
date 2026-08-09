@@ -94,6 +94,10 @@ graph LR
   <i>Grupo GIDS6093</i>
 </p>
 
+## Arquitectura de la aplicación
+<img width="905" height="912" alt="imagen" src="https://github.com/user-attachments/assets/6a1ac2b4-9d91-4de0-b15a-ff323a92dbaa" />
+
+
 
 ## Arquitectura de la aplicación
 <img width="905" height="912" alt="imagen" src="https://github.com/user-attachments/assets/6a1ac2b4-9d91-4de0-b15a-ff323a92dbaa" />
