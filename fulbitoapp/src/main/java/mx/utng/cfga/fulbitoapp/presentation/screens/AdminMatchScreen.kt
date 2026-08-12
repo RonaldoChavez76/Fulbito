@@ -1,3 +1,4 @@
+// Pantalla de: AdminMatchScreen
 package mx.utng.cfga.fulbitoapp.presentation.screens
 
 import androidx.compose.foundation.layout.*
@@ -375,3 +376,4 @@ fun MatchCard(match: Match, onEdit: () -> Unit, onDelete: () -> Unit) {
         }
     }
 }
+

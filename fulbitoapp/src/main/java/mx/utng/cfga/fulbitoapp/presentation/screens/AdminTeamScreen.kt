@@ -1,3 +1,4 @@
+// Pantalla de: AdminTeamScreen
 package mx.utng.cfga.fulbitoapp.presentation.screens
 
 import android.net.Uri
@@ -404,3 +405,4 @@ fun TeamCard(team: Team, onEdit: () -> Unit, onDelete: () -> Unit) {
         }
     }
 }
+

@@ -53,12 +53,12 @@ graph LR
 ### App Móvil (Teléfono)
 > 
 <!-- Reemplaza el link con tu imagen -->
-<img width="300" alt="Captura Teléfono" src="![alt text](image.png)" />
+![alt text](image-2.png)
 
 ### Pantalla / Android TV
 
 <!-- Reemplaza el link con tu imagen -->
-<img width="600" alt="Captura TV" src="![alt text](image-1.png)" />
+![alt text](image-3.png)
 
 </div>
 

@@ -1,3 +1,4 @@
+// Pantalla de: PlayerProfileScreen
 package mx.utng.cfga.fulbitoapp.presentation.screens
 
 import android.widget.Toast
@@ -493,3 +494,4 @@ fun ChangePasswordDialog(
         }
     )
 }
+

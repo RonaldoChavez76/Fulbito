@@ -1,3 +1,4 @@
+// Pantalla de: AdminDashboardScreen
 package mx.utng.cfga.fulbitoapp.presentation.screens
 
 import androidx.compose.foundation.background
@@ -415,3 +416,4 @@ private fun DashboardSquareCard(
         }
     }
 }
+

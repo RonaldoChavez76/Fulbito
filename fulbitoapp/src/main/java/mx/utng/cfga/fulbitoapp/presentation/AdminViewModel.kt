@@ -20,6 +20,13 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.io.FileOutputStream
 
+/**
+ * AdminViewModel
+ *
+ * Gestiona el estado de toda la aplicación para el rol de Administrador.
+ * Mantiene listas de Partidos, Equipos y Ligas, y se encarga de recargar 
+ * los datos desde la base de datos (MongoDB) vía Retrofit.
+ */
 class AdminViewModel : ViewModel() {
     private val api get() = RetrofitInstance.getApi()
 
@@ -102,6 +109,9 @@ class AdminViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Obtiene los equipos filtrados por la liga seleccionada.
+     */
     fun fetchTeams() {
         viewModelScope.launch {
             try {
@@ -205,6 +215,13 @@ class AdminViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Sube una imagen (ej. logo de equipo) al servidor Node.js usando un formato Multipart.
+     * 
+     * @param context Contexto de Android para acceder al ContentResolver.
+     * @param uri URI local de la imagen seleccionada en el teléfono.
+     * @return La URL final de la imagen ya hospedada en el servidor, o null si falla.
+     */
     suspend fun uploadImage(context: Context, uri: Uri): String? {
         return try {
             val mimeType = context.contentResolver.getType(uri) ?: "image/jpeg"

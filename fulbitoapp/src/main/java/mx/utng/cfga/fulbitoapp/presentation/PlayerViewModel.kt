@@ -11,6 +11,12 @@ import mx.utng.cfga.fulbitoapp.data.remote.ChangePasswordRequest
 import mx.utng.cfga.fulbitoapp.data.remote.MyStatsResponse
 import mx.utng.cfga.fulbitoapp.data.remote.RetrofitInstance
 
+/**
+ * PlayerViewModel
+ *
+ * Se encarga de gestionar el estado y la lógica de negocio para la vista del jugador.
+ * Conecta la UI (Jetpack Compose) con la API REST (Retrofit).
+ */
 class PlayerViewModel : ViewModel() {
     private val api = RetrofitInstance.getApi()
 
@@ -26,6 +32,12 @@ class PlayerViewModel : ViewModel() {
     private val _captainInfo = MutableStateFlow<CaptainInfoResponse?>(null)
     val captainInfo: StateFlow<CaptainInfoResponse?> = _captainInfo.asStateFlow()
 
+    /**
+     * Obtiene las estadísticas globales del jugador (Goles, Partidos, Tarjetas).
+     * Se comunica con la ruta GET /api/players/:userId/stats del backend.
+     * 
+     * @param userId El ID único de MongoDB del jugador logueado.
+     */
     fun fetchMyStats(userId: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -39,6 +51,15 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Cambia la contraseña del jugador mediante la API segura.
+     *
+     * @param userId ID del jugador.
+     * @param oldPass Contraseña actual (para validación de seguridad).
+     * @param newPass La nueva contraseña deseada.
+     * @param onSuccess Callback que se ejecuta si el cambio es exitoso.
+     * @param onError Callback que devuelve un mensaje de error si falla la validación.
+     */
     fun changePassword(userId: String, oldPass: String, newPass: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
@@ -51,6 +72,13 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Consulta si el jugador logueado tiene el rol de "Capitán".
+     * Si es capitán, el backend también devuelve la lista de jugadores de su equipo
+     * y los próximos partidos programados para mostrarlos en el Dashboard.
+     *
+     * @param userId ID del jugador logueado.
+     */
     fun fetchCaptainInfo(userId: String) {
         viewModelScope.launch {
             try {

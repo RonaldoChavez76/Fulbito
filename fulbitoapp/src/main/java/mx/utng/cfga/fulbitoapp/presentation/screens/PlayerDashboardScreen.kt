@@ -1,3 +1,4 @@
+// Pantalla de: PlayerDashboardScreen
 package mx.utng.cfga.fulbitoapp.presentation.screens
 
 import androidx.compose.foundation.background
@@ -515,3 +516,4 @@ private fun ModernPlayerRow(player: Player) {
         }
     }
 }
+

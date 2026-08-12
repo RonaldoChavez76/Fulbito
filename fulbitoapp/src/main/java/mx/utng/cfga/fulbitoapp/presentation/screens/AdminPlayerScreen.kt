@@ -1,3 +1,4 @@
+// Pantalla de: AdminPlayerScreen
 package mx.utng.cfga.fulbitoapp.presentation.screens
 
 import androidx.compose.foundation.background
@@ -465,3 +466,4 @@ fun PlayerCard(player: Player, onEdit: () -> Unit, onDelete: () -> Unit, onGener
         }
     }
 }
+
