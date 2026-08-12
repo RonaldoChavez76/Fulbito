@@ -32,6 +32,16 @@ private val DarkColors = darkColorScheme(
     onSurface = Color.White
 )
 
+/**
+ * MainActivity
+ *
+ * Punto de entrada principal de la aplicación Android.
+ * Se encarga de:
+ * 1. Inicializar el tema base (MaterialTheme) y detectar Modo Claro/Oscuro.
+ * 2. Cargar el componente de Jetpack Navigation (`AppNavigation`).
+ * 3. Solicitar el permiso de notificaciones (Android 13+).
+ * 4. Conectar y mantener la conexión WebSocket (SocketManager).
+ */
 class MainActivity : ComponentActivity() {
 
     // Launcher para solicitar permiso POST_NOTIFICATIONS (Android 13+)

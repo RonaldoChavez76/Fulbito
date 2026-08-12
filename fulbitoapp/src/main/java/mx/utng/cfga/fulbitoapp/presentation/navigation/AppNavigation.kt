@@ -18,6 +18,13 @@ import mx.utng.cfga.fulbitoapp.presentation.screens.AdminPlayerScreen
 import mx.utng.cfga.fulbitoapp.presentation.screens.AdminTeamScreen
 import mx.utng.cfga.fulbitoapp.presentation.screens.LoginScreen
 
+/**
+ * Componente principal de navegación de la aplicación móvil (Jetpack Navigation Compose).
+ * 
+ * Gestiona el flujo de pantallas y las rutas del usuario. Inicializa los ViewModels
+ * compartidos (`LoginViewModel`, `AdminViewModel`, `PlayerViewModel`) y pasa 
+ * el estado a cada pantalla según corresponda.
+ */
 @Composable
 fun AppNavigation(isDarkMode: Boolean, onToggleDarkMode: () -> Unit) {
     val navController = rememberNavController()

@@ -1,16 +1,31 @@
 package mx.utng.cfga.fulbitoapp.data.remote
 
+/**
+ * Representa a un usuario autenticado en el sistema.
+ * 
+ * @property id Identificador único de MongoDB.
+ * @property username Nombre de usuario (ej. "Ronaldo_7").
+ * @property role Rol del usuario ("ADMIN" o "PLAYER").
+ */
+
 data class User(
     val id: String,
     val username: String,
     val role: String
 )
 
+/**
+ * Respuesta del backend tras un login exitoso.
+ * Contiene el token JWT (si aplica) y la información del usuario.
+ */
 data class AuthResponse(
     val message: String,
     val user: User
 )
 
+/**
+ * Petición enviada al backend para autenticar a un usuario o crearlo.
+ */
 data class AuthRequest(
     val username: String,
     val password: String,

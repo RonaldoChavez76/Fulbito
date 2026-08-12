@@ -1,5 +1,13 @@
 package mx.utng.cfga.fulbitoapp.data.remote
 
+/**
+ * Data Classes (Modelos de Dominio)
+ * 
+ * Estos modelos mapean exactamente la estructura de los documentos JSON 
+ * devueltos por la API REST de MongoDB. Retrofit y Gson los utilizan 
+ * automáticamente para parsear la respuesta del servidor a objetos Kotlin.
+ */
+
 data class League(
     val _id: String? = null,
     val name: String = "",

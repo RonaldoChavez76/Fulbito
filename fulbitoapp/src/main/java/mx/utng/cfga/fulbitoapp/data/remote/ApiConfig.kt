@@ -1,5 +1,13 @@
 package mx.utng.cfga.fulbitoapp.data.remote
 
+/**
+ * Objeto de configuración de red.
+ *
+ * Centraliza la URL base de conexión al backend Node.js.
+ * Debe actualizarse con la IP local de la máquina que ejecuta el servidor
+ * cuando se prueba en un dispositivo físico.
+ */
+
 object ApiConfig {
     // Cambia esta según dónde estés probando xd
     

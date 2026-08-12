@@ -11,6 +11,13 @@ import retrofit2.http.Path
 import retrofit2.http.*
 import okhttp3.MultipartBody
 
+/**
+ * Interfaz ApiService
+ *
+ * Define todos los endpoints (rutas) de la API REST del backend Node.js.
+ * Utiliza Retrofit para convertir las funciones suspendidas de Kotlin 
+ * en peticiones HTTP (GET, POST, PUT, DELETE) de manera asíncrona.
+ */
 interface ApiService {
     @Multipart
     @POST("upload")
