@@ -49,7 +49,7 @@ graph TD
 
 <div align="center">
 
-## Capturas de Pantalla (Ecosistema Completo)
+## Capturas de Pantalla (Ecosistema)
 
 <p align="center">
   <b>Interfaz Wear OS (Reloj Árbitro)</b><br>
@@ -74,27 +74,83 @@ graph TD
 
 ---
 
-## Estructura del Proyecto Frontend (Árbol de Carpetas)
+## Estructura del Proyecto Frontend (Árbol de Carpetas y Archivos .kt)
 
-El proyecto Android es un proyecto multi-módulo que separa claramente la lógica de cada tipo de dispositivo. 
+El proyecto Android es un proyecto multi-módulo que separa claramente la lógica de cada tipo de dispositivo. A continuación, el árbol idéntico a la estructura real del código fuente:
 
 ```text
 Fulbito/
-├── app/                      (Módulo de Wear OS - Reloj)
-│   └── src/main/java/.../app/
-│       ├── presentation/     (Pantallas e interfaz circular)
-│       └── data/             (Lógica de consumo de API)
-├── fulbitoapp/               (Módulo de Android Móvil - Teléfono)
-│   └── src/main/java/.../fulbitoapp/
-│       ├── data/             (Modelos y conexión al servidor)
-│       │   └── remote/       (Retrofit, Socket.io y Data Classes)
-│       ├── presentation/     (ViewModels y Navegación)
-│       │   └── screens/      (Pantallas UI en Jetpack Compose)
-│       └── util/             (Servicios como Notificaciones locales)
-└── fulbitotv/                (Módulo de Android TV - Pantalla)
-    └── src/main/java/.../fulbitotv/
-        ├── presentation/     (Pantallas UI en formato panorámico)
-        └── data/             (Conexión al servidor)
+├── app/src/main/java/mx/utng/srcp/fulbito/          (MÓDULO WEAR OS)
+│   ├── data/
+│   │   ├── local/
+│   │   │   ├── AppDatabase.kt
+│   │   │   └── Converters.kt
+│   │   ├── dao/
+│   │   │   └── MatchDao.kt
+│   │   ├── entity/
+│   │   │   ├── EventEntity.kt
+│   │   │   ├── MatchEntity.kt
+│   │   │   └── PlayerEntity.kt
+│   │   ├── remote/
+│   │   │   ├── ApiService.kt
+│   │   │   └── RetrofitClient.kt
+│   │   └── repository/
+│   │       └── MatchRepository.kt
+│   └── presentation/
+│       ├── MainActivity.kt
+│       ├── MainViewModel.kt
+│       ├── screens/
+│       │   ├── CommonUI.kt
+│       │   ├── DashboardScreen.kt
+│       │   ├── EditEventScreen.kt
+│       │   ├── EventLogScreen.kt
+│       │   ├── EventRegistrationScreen.kt
+│       │   ├── MatchSelectionScreen.kt
+│       │   └── WelcomeScreen.kt
+│       └── theme/
+│           └── Theme.kt
+│
+├── fulbitoapp/src/main/java/mx/utng/cfga/fulbitoapp/  (MÓDULO TELÉFONO)
+│   ├── MainActivity.kt
+│   ├── data/remote/
+│   │   ├── ApiConfig.kt
+│   │   ├── ApiService.kt
+│   │   ├── AuthModels.kt
+│   │   ├── Models.kt
+│   │   └── SocketManager.kt
+│   ├── presentation/
+│   │   ├── AdminViewModel.kt
+│   │   ├── LoginViewModel.kt
+│   │   ├── PlayerViewModel.kt
+│   │   ├── navigation/
+│   │   │   └── AppNavigation.kt
+│   │   └── screens/
+│   │       ├── AdminDashboardScreen.kt
+│   │       ├── AdminMatchScreen.kt
+│   │       ├── AdminPlayerScreen.kt
+│   │       ├── AdminTeamScreen.kt
+│   │       ├── AppColors.kt
+│   │       ├── LeagueSelectionScreen.kt
+│   │       ├── LoginScreen.kt
+│   │       ├── PlayerDashboardScreen.kt
+│   │       └── PlayerProfileScreen.kt
+│   └── util/
+│       └── FulbitoNotificationService.kt
+│
+└── fulbitotv/src/main/java/mx/utng/srcp/fulbitotv/    (MÓDULO ANDROID TV)
+    ├── MainActivity.kt
+    ├── data/remote/
+    │   ├── ApiService.kt
+    │   └── Models.kt
+    ├── presentation/
+    │   ├── TvViewModel.kt
+    │   └── screens/
+    │       ├── TvLiveScoreScreen.kt
+    │       └── TvWaitingScreen.kt
+    └── ui/theme/
+        ├── Color.kt
+        ├── Theme.kt
+        └── Type.kt
 ```
 
 ## Función y Detalle de Todos los Archivos Críticos del Frontend
@@ -133,65 +189,75 @@ A continuación, se detalla la responsabilidad de todos los archivos Kotlin más
 
 ---
 
-## Código y Lógica Principal por Dispositivo (Extractos Completos)
+## Código y Lógica Principal por Dispositivo (Extractos Completos y Funcionales)
 
-### 1. App Móvil (Teléfono) - Reactividad e Inyección de Socket
-El teléfono debe actualizarse en tiempo real para mostrar los cambios que el árbitro hace desde el reloj. Usamos Kotlin Flows combinados con un Singleton de **Socket.io**.
-*Archivo:* `fulbitoapp/src/main/java/mx/utng/cfga/fulbitoapp/presentation/AdminViewModel.kt`
+### 1. App Móvil (Teléfono) - Inyección de Socket.io y Sistema de Notificaciones
+En la aplicación móvil, nos conectamos vía WebSockets para obtener una experiencia fluida sin necesidad de recargar la pantalla manualmente. A continuación, el flujo real dentro del `AdminViewModel.kt` que combina Kotlin StateFlow con el cliente Socket.io:
+
 ```kotlin
 /**
  * Conecta el dispositivo al servidor WebSocket local y se suscribe a los canales de eventos.
- * Si ocurre un evento de partido (Ej. "GOL"), dispara la notificación push nativa.
+ * Si ocurre un evento crítico durante un partido (Ej. "GOL"), 
+ * dispara de inmediato la notificación push nativa hacia el sistema operativo.
  */
 fun connectSocket(matchId: String, context: Context) {
     viewModelScope.launch {
-        SocketManager.connect()
-        
-        // Callback asíncrono para interceptar el evento emitido por el reloj
-        SocketManager.onMatchEvent { event ->
-            // Muta el StateFlow para obligar a Jetpack Compose a repintar la UI
-            _eventosPartido.value = _eventosPartido.value + event
+        try {
+            SocketManager.connect()
             
-            // Evaluamos si requiere notificación urgente
-            if (event.type == "GOL") {
-                FulbitoNotificationService.showNotification(
-                    context = context,
-                    title = "¡GOL EN VIVO! ⚽",
-                    message = "El marcador se acaba de actualizar."
-                )
-            } else if (event.type == "TARJETA ROJA") {
-                FulbitoNotificationService.showNotification(
-                    context = context,
-                    title = "Expulsión 🟥",
-                    message = "Un jugador ha recibido tarjeta roja directa."
-                )
+            // Callback asíncrono para interceptar el evento 'match_event' emitido por el Reloj
+            SocketManager.onMatchEvent { event ->
+                if (event.matchId == matchId) {
+                    // Muta el StateFlow para obligar a Jetpack Compose a repintar la UI del tablero de goles
+                    _eventosPartido.value = _eventosPartido.value + event
+                    
+                    // Evaluamos el tipo de evento para lanzar alertas críticas
+                    when (event.type) {
+                        "GOL" -> {
+                            FulbitoNotificationService.showNotification(
+                                context = context,
+                                title = "¡GOL EN VIVO! ⚽",
+                                message = "El marcador se acaba de actualizar."
+                            )
+                        }
+                        "TARJETA ROJA" -> {
+                            FulbitoNotificationService.showNotification(
+                                context = context,
+                                title = "Expulsión Registrada 🟥",
+                                message = "Un jugador acaba de recibir tarjeta roja directa."
+                            )
+                        }
+                    }
+                }
             }
+        } catch (e: Exception) {
+            Log.e("AdminViewModel", "Error al inicializar Socket.io: ${e.message}")
         }
     }
 }
 ```
 
-### 2. App Wear OS (Reloj Árbitro) - Corrutinas Persistentes y Cronómetro
-El reloj no solo envía peticiones HTTP al registrar goles, sino que maneja un motor de estado complejo y asíncrono para el cronómetro del árbitro (sobreviviendo a apagues de pantalla mediante delegación de Job).
-*Archivo:* `app/src/main/java/mx/utng/cfga/fulbitoapp/presentation/viewmodel/MatchControlViewModel.kt`
+### 2. App Wear OS (Reloj Árbitro) - Persistencia del Cronómetro y Envío de Goles
+El Wear OS es el cerebro del partido. No solo emite los goles a la base de datos REST, sino que ejecuta una corrutina incesante que funciona como cronómetro en tiempo real. Esta corrutina es totalmente independiente del ciclo de vida de la pantalla (funciona incluso si la pantalla se apaga).
+
 ```kotlin
 /**
  * Lanza una corrutina incesante que incrementa el contador de partido cada segundo.
- * Evita la destrucción del estado gracias a viewModelScope y el Job aislado.
+ * Evita la destrucción del estado gracias a viewModelScope y el delegador de Job.
  */
 fun startTimer() {
-    // Si ya existe un timer corriendo, lo cancelamos antes de reiniciar
+    // Si ya existe un timer corriendo en un contexto anterior, lo cancelamos antes de reiniciar
     timerJob?.cancel()
     
-    timerJob = viewModelScope.launch {
-        while (true) {
+    timerJob = viewModelScope.launch(Dispatchers.Default) {
+        while (isActive) {
             delay(1000L) // Pausa asíncrona no bloqueante
-            // Solo aumentamos el tiempo si el partido no está pausado o en medio tiempo
+            
+            // Solo aumentamos el tiempo si el partido está en juego (ni pausado ni en medio tiempo)
             if (!isPaused.value && !isHalfTime.value) {
                 _elapsedTime.value += 1
                 
-                // Realizamos respaldos de tiempo al servidor cada 60 segundos 
-                // por si el reloj se queda sin batería.
+                // Realizamos respaldos de tiempo automáticos al servidor (Sync cada 60s)
                 if (_elapsedTime.value % 60 == 0) {
                     syncTimeWithServer(matchId)
                 }
@@ -201,8 +267,8 @@ fun startTimer() {
 }
 
 /**
- * Consumo asíncrono de API. Mutamos la base de datos de MongoDB desde el reloj
- * indicando el estado exacto del partido.
+ * Mutación del marcador. Actualizamos MongoDB con Retrofit.
+ * Automáticamente, Node.js atrapará este cambio y lo transmitirá por Socket.io a la TV y Teléfonos.
  */
 fun updateMatchStatus(matchId: String, isFinished: Boolean = false) {
     viewModelScope.launch {
@@ -216,39 +282,219 @@ fun updateMatchStatus(matchId: String, isFinished: Boolean = false) {
                     isFinished = isFinished
                 )
             )
+            Log.d("WearOS", "Sincronización de Score Exitosa: ${homeScore.value} - ${awayScore.value}")
         } catch (e: Exception) {
-            _errorState.value = "Fallo de red en el estadio."
+            _errorState.value = "Fallo de red en el estadio. Imposible actualizar base de datos."
+            Log.e("WearOS", "Error HTTP: ${e.message}")
         }
     }
 }
 ```
 
-### 3. Android TV (Pantalla) - Escucha Activa sin Interacción
-La televisión actúa como un cliente silencioso que reacciona a los "Pings" del servidor para refrescar todo su StateFlow visual sin que nadie toque un control.
-*Archivo:* `fulbitotv/src/main/java/mx/utng/cfga/fulbitoapp/presentation/TvViewModel.kt`
+### 3. Android TV (Pantalla) - Escucha Activa sin Interacción (Solo Lectura)
+La televisión carece de botones de interacción; actúa como un cliente silencioso que reacciona pasivamente a los "Pings" (Socket Pushes) del servidor para refrescar todo su StateFlow visual de inmediato.
+
 ```kotlin
 /**
- * Bucle de escucha infinita para la televisión, optimizado para evitar fugas de memoria.
+ * Bucle de escucha infinita para la televisión, optimizado con Dispatchers.IO 
+ * para evitar bloqueos del hilo principal al redibujar UI grandes.
  */
 fun listenToMatchUpdates(matchId: String) {
     SocketManager.connect()
     
-    // Suscripción al canal 'match_updated'
+    // Suscripción de baja latencia al canal 'match_updated' de WebSocket
     SocketManager.onMatchUpdated { updatedMatchId ->
-        // Si el evento corresponde a nuestro ID de partido actual, bajamos el JSON fresco
+        
+        // Verificamos que el evento emitido corresponda al partido que está renderizando la TV
         if (updatedMatchId == matchId) {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 try {
-                    // Bajada en segundo plano
+                    // Descarga REST de los datos más recientes (Gol, Tarjeta o Cambio de Tiempo)
                     val freshData = api.getMatchDetails(matchId)
                     
-                    // Transición automática del marcador
-                    _matchDetails.value = freshData.partido
-                    _eventosPartido.value = freshData.eventos
+                    // Mutamos el StateFlow en el Thread principal (Main) para actualizar Compose
+                    withContext(Dispatchers.Main) {
+                        _matchDetails.value = freshData.partido
+                        _eventosPartido.value = freshData.eventos
+                        Log.d("AndroidTV", "Marcador de TV actualizado a través de Socket.io")
+                    }
                 } catch (e: Exception) {
                     Log.e("TvViewModel", "Error al repintar marcador en TV: ${e.message}")
                 }
             }
+        }
+    }
+### 4. Capa de Red y Multi-part (Retrofit)
+`ApiService.kt` centraliza todas las peticiones asíncronas al Backend usando Kotlin Coroutines (`suspend fun`), permitiendo subir incluso fotografías y escudos binarios vía `MultipartBody`.
+```kotlin
+interface ApiService {
+    // Endpoints REST tradicionales
+    @GET("matches")
+    suspend fun getMatches(@Query("leagueId") leagueId: String? = null): List<Match>
+    
+    @POST("auth/login")
+    suspend fun login(@Body request: AuthRequest): AuthResponse
+
+    // Subida asíncrona de archivos multimedia (Logos/Fotos)
+    @Multipart
+    @POST("upload")
+    suspend fun uploadImage(@Part image: MultipartBody.Part): UploadResponse
+}
+```
+
+### 5. Renderizado Dinámico de Gráficas en Jetpack Compose
+El `PlayerProfileScreen.kt` no utiliza librerías externas para gráficas. Analiza las métricas y dibuja geométricamente el "Radar de Rendimiento" mediante el API nativa de `Canvas` de Compose.
+```kotlin
+@Composable
+fun RadarChart(
+    values: List<Float>, // Valores normalizados (0f a 1f)
+    labels: List<String>,
+    modifier: Modifier = Modifier
+) {
+    val textMeasurer = rememberTextMeasurer() // API oficial de Compose para Textos en Canvas
+    
+    Canvas(modifier = modifier) {
+        val cx = size.width / 2f
+        val cy = size.height / 2f
+        val radius = (size.minDimension / 2f) * 0.60f
+        val angleStep = (2 * Math.PI / values.size).toFloat()
+        
+        // Función matemática para calcular vértices
+        fun vertexAt(level: Float, i: Int): Offset {
+            val angle = -Math.PI.toFloat() / 2f + i * angleStep
+            return Offset(
+                cx + level * radius * kotlin.math.cos(angle),
+                cy + level * radius * kotlin.math.sin(angle)
+            )
+        }
+
+        // Trazado del Polígono de Rendimiento
+        val dataPath = Path()
+        for (i in values.indices) {
+            val v = vertexAt(values[i].coerceIn(0f, 1f), i)
+            if (i == 0) dataPath.moveTo(v.x, v.y) else dataPath.lineTo(v.x, v.y)
+        }
+        dataPath.close()
+        
+        // Pintamos el relleno translúcido y los bordes curvos
+        drawPath(path = dataPath, color = Color.Green.copy(alpha = 0.18f))
+        drawPath(path = dataPath, color = Color.Green, style = Stroke(width = 2.5f))
+    }
+}
+```
+
+### 6. Sistema de Notificaciones Push Nativas
+El `FulbitoNotificationService.kt` se encarga de crear el canal de notificaciones en el OS y disparar alertas silenciosas o ruidosas en el teléfono cuando el WebSocket atrapa una tarjeta roja o un gol.
+```kotlin
+object FulbitoNotificationService {
+    private const val CHANNEL_ID = "fulbito_live_channel"
+
+    fun showNotification(context: Context, title: String, message: String) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        // Creación del Canal (Obligatorio en Android Oreo+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Eventos de Partido en Vivo",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notificaciones instantáneas de goles y tarjetas"
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .build()
+
+        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+    }
+}
+```
+
+### 7. Manejo de Estados y Mutabilidad (LoginViewModel)
+El `LoginViewModel.kt` demuestra el correcto uso de la inmutabilidad exponiendo flujos seguros (`StateFlow`) hacia la UI y encriptando/validando credenciales en Background threads.
+```kotlin
+class LoginViewModel : ViewModel() {
+    private val api = RetrofitInstance.getApi()
+
+    // Solo el ViewModel puede mutar el estado
+    private val _user = MutableStateFlow<User?>(null)
+    // Compose solo puede observar esta versión de solo-lectura
+    val user: StateFlow<User?> = _user.asStateFlow()
+
+    fun login(username: String, pass: String, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                // Suspende la corrutina hasta que el servidor devuelva el Token JWT o responda
+                val res = api.login(AuthRequest(username, pass))
+                _user.value = res.user
+            } catch (e: Exception) {
+                onError("Credenciales incorrectas o servidor caído")
+            }
+        }
+    }
+}
+```
+
+### 8. Gestor Global de WebSockets (SocketManager)
+El `SocketManager.kt` actúa como la capa de persistencia bidireccional. Se autogestiona para no multiplicar conexiones infinitas y retransmite lambdas tipadas a quien las suscriba.
+```kotlin
+object SocketManager {
+    private var socket: Socket? = null
+
+    fun connect() {
+        if (socket == null) {
+            val opts = IO.Options()
+            opts.forceNew = true
+            socket = IO.socket(ApiConfig.BASE_URL.replace("/api", ""), opts)
+            socket?.connect()
+        }
+    }
+
+    // Escucha eventos del backend Node.js, parseando JSONs puros a Gson/Kotlin
+    fun onMatchEvent(callback: (EventEntity) -> Unit) {
+        socket?.on("match_event") { args ->
+            if (args.isNotEmpty()) {
+                val dataStr = args[0].toString()
+                val event = Gson().fromJson(dataStr, EventEntity::class.java)
+                callback(event)
+            }
+        }
+    }
+}
+```
+
+### 9. Navegación Segura en Jetpack Compose
+El `AppNavigation.kt` instancializa y comparte los ViewModels (para que retengan su memoria RAM durante cambios de pantalla) y enruta la UI usando NavController.
+```kotlin
+@Composable
+fun AppNavigation(isDarkMode: Boolean, onToggleDarkMode: () -> Unit) {
+    val navController = rememberNavController()
+    
+    // Estos ViewModels viven mientras exista el NavHost
+    val loginViewModel: LoginViewModel = viewModel()
+    val adminViewModel: AdminViewModel = viewModel()
+    val playerViewModel: PlayerViewModel = viewModel()
+
+    NavHost(navController = navController, startDestination = "login") {
+        composable("login") {
+            LoginScreen(navController, loginViewModel, isDarkMode, onToggleDarkMode)
+        }
+        composable("admin_dashboard") {
+            AdminDashboardScreen(navController, loginViewModel, isDarkMode, onToggleDarkMode)
+        }
+        composable("player_dashboard") {
+            PlayerDashboardScreen(navController, loginViewModel, playerViewModel)
+        }
+        // Pasando parámetros en las rutas (ej. teamId)
+        composable("admin_team?teamId={teamId}") { backStackEntry ->
+            val teamId = backStackEntry.arguments?.getString("teamId")
+            AdminTeamScreen(navController, adminViewModel, teamId)
         }
     }
 }
@@ -274,34 +520,6 @@ El proyecto está diseñado usando los paradigmas más modernos de desarrollo m�
 - **Socket.io:** Motor de eventos bidireccional de baja latencia.
 - **MongoDB + Mongoose:** Base de datos NoSQL flexible, ideal para esquemas de torneos.
 - **Bcrypt:** Encriptación de contraseñas por seguridad.
-
----
-
-## Arquitectura Interna del Frontend (Patrón MVVM)
-
-El código fuente de las aplicaciones Android sigue rigurosamente el patrón **MVVM (Model-View-ViewModel)** recomendado por Google, asegurando un código escalable y fácil de mantener:
-
-1. **Capa de Datos (Data Layer - `data/remote/`)**:
-   - `ApiService.kt`: Interfaz de Retrofit que mapea los endpoints REST (GET, POST, PUT, DELETE).
-   - `SocketManager.kt`: Singleton que mantiene viva la conexión WebSocket para recibir los eventos en tiempo real (`match_event`, `match_finished`).
-   - `Models.kt` / `AuthModels.kt`: Data classes de Kotlin que representan la estructura JSON de la base de datos MongoDB.
-
-2. **Capa de Estado y Lógica (ViewModel Layer - `presentation/`)**:
-   - `AdminViewModel.kt`: Mantiene el estado global de Ligas, Equipos y Partidos usando `StateFlow`. Expone funciones asíncronas mediante Corrutinas (`viewModelScope.launch`) para enviar datos al servidor.
-   - `PlayerViewModel.kt`: Gestiona la descarga de estadísticas del jugador y procesa la información de capitanía.
-   - `TvViewModel.kt`: Se suscribe a los eventos del socket y actualiza el marcador en vivo.
-
-3. **Capa de Presentación (UI Layer - `presentation/screens/`)**:
-   - Construida 100% con **Jetpack Compose**. Las pantallas reaccionan automáticamente y se recomponen ante los cambios de los `StateFlow` del ViewModel.
-   - Componentes matemáticos avanzados como el `RadarChart` dibujado a la medida usando el `Canvas` nativo de Compose.
-   - `AppNavigation.kt`: Define el grafo de navegación usando `Navigation Compose`, asegurando el ruteo seguro entre pantallas.
-
-## Librerías Android Utilizadas
-
-- **Retrofit2 & OkHttp3**: Estándar para peticiones HTTP eficientes. Soporte para peticiones `Multipart` (subida de imágenes).
-- **Socket.io-client**: Cliente nativo para Android que permite la recepción de eventos del servidor en cuestión de milisegundos.
-- **Coil-Compose**: Sistema moderno de carga de imágenes asíncronas con soporte avanzado para caché en disco y memoria.
-- **Material Design 3**: Implementación de temas dinámicos (Claro/Oscuro) y componentes de UI fluidos.
 
 ---
 
