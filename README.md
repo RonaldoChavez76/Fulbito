@@ -22,8 +22,9 @@
 > Incluye los módulos:
 > - `fulbitoapp` — App Móvil Android (Jetpack Compose)
 > - `fulbitotv` — App Android TV (Jetpack Compose TV)
+> - `app` — App Wear OS (Reloj Inteligente)
 >
-> **Total de archivos documentados: 31**
+> **Total de archivos documentados: 50**
 
 ---
 
