@@ -11,6 +11,22 @@
   <img src="https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white" />
 </p>
 
+---
+
+## 📄 Código Fuente Completo del Frontend
+
+> El documento con **absolutamente todo el código fuente del frontend** (línea 1 hasta la última, con todos los comentarios) se encuentra en el siguiente archivo:
+>
+> **[CODIGO_FRONTEND_COMPLETO.docx](./CODIGO_FRONTEND_COMPLETO.docx)**
+>
+> Incluye los módulos:
+> - `fulbitoapp` — App Móvil Android (Jetpack Compose)
+> - `fulbitotv` — App Android TV (Jetpack Compose TV)
+>
+> **Total de archivos documentados: 31**
+
+---
+
 **Fulbito** es una solución integral y distribuida para la gestión de partidos de fútbol en tiempo real, diseñada específicamente para funcionar en perfecta sincronía a través del ecosistema **Wear OS, Android Móvil y Android TV**. 
 
 ### Beneficiario del Proyecto
