@@ -13,18 +13,18 @@
 
 ---
 
-##  Código Fuente Completo del Frontend
+##  Código Fuente Completo 
 
 > El documento con **absolutamente todo el código fuente del frontend** (línea 1 hasta la última, con todos los comentarios) se encuentra en el siguiente archivo:
 >
-> **[CODIGO_FRONTEND_COMPLETO.docx](https://drive.google.com/file/d/1fhmGZ7sfFKE-7U0vWxAlfZn9sUt4mTyx/view?usp=sharing)**
+> **[CODIGO_COMPLETO.pdf](https://drive.google.com/file/d/1fhmGZ7sfFKE-7U0vWxAlfZn9sUt4mTyx/view?usp=sharing)**
 >
 > Incluye los módulos:
 > - `fulbitoapp` — App Móvil Android (Jetpack Compose)
 > - `fulbitotv` — App Android TV (Jetpack Compose TV)
 > - `app` — App Wear OS (Reloj Inteligente)
 >
-> **Total de archivos documentados: 50**
+> **Fulbito 360**
 
 ---
 
