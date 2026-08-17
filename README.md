@@ -582,3 +582,11 @@ Para ejecutar este ecosistema localmente, necesitas **Node.js**, **MongoDB** y *
 
 ## Resumen Gráfico de Arquitectura
 <img width="905" height="912" alt="imagen" src="https://github.com/user-attachments/assets/6a1ac2b4-9d91-4de0-b15a-ff323a92dbaa" />
+
+
+## Carta de validación y aprobación del beneficiario. 
+<img width="553" height="721" alt="imagen" src="https://github.com/user-attachments/assets/354c344a-93ec-4753-88e2-3f92f8965248" />
+
+
+<img width="489" height="701" alt="imagen" src="https://github.com/user-attachments/assets/1eddf4bd-49eb-40d1-883f-154c0101525b" />
+
